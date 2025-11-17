@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	// GenericLabelKey is the labe applied to all non operator resources
+	// GenericLabelKey is the label applied to all non operator resources
 	GenericLabelKey = "migrations.kubevirt.io"
 	// AppLabelValue is the value applied to all non operator resources
 	AppLabelValue = "kubevirt-migration-controller"

@@ -10,7 +10,7 @@ make undeploy || echo "this is fine"
 
 port=$(./cluster-up/cli.sh ports registry | xargs)
 # push to local registry provided by kvci
-make docker-build IMG="127.0.0.1:${port}/kubevirt-migration-operator:latest"
-make docker-push IMG="127.0.0.1:${port}/kubevirt-migration-operator:latest"
-# the "cluster" (kvci VM) only understands the alias registry:5000 (which maps to 127.0.0.1:${port})
+make docker-build IMG="localhost:${port}/kubevirt-migration-operator:latest"
+make docker-push IMG="localhost:${port}/kubevirt-migration-operator:latest"
+# the "cluster" (kvci VM) only understands the alias registry:5000 (which maps to localhost:${port})
 make deploy IMG="registry:5000/kubevirt-migration-operator:latest"
