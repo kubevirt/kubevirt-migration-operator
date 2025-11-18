@@ -48,7 +48,6 @@ var staticFactoryFunctions = factoryFuncMap{
 
 func createCRDResources(args *FactoryArgs) []client.Object {
 	return []client.Object{
-		createMigClusterCRD(),
 		createMigMigrationCRD(),
 		createMigPlanCRD(),
 	}

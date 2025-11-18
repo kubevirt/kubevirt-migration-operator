@@ -21,40 +21,78 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	record "k8s.io/client-go/tools/record"
+	manager "sigs.k8s.io/controller-runtime/pkg/manager"
 
+	"kubevirt.io/controller-lifecycle-operator-sdk/pkg/sdk/callbacks"
+	sdkr "kubevirt.io/controller-lifecycle-operator-sdk/pkg/sdk/reconciler"
 	migrationsv1alpha1 "kubevirt.io/kubevirt-migration-operator/api/v1alpha1"
+	"kubevirt.io/kubevirt-migration-operator/pkg/resources/cluster"
+	"kubevirt.io/kubevirt-migration-operator/pkg/resources/namespaced"
+)
+
+const (
+	testNamespace = "kubevirt"
+	resourceName  = "test-resource"
 )
 
 var _ = Describe("MigController Controller", func() {
 	Context("When reconciling a resource", func() {
-		const resourceName = "test-resource"
-
+		var (
+			controllerReconciler *MigControllerReconciler
+		)
 		ctx := context.Background()
 
 		typeNamespacedName := types.NamespacedName{
 			Name:      resourceName,
-			Namespace: "default", // TODO(user):Modify as needed
+			Namespace: testNamespace,
 		}
 		migcontroller := &migrationsv1alpha1.MigController{}
 
 		BeforeEach(func() {
 			By("creating the custom resource for the Kind MigController")
-			err := k8sClient.Get(ctx, typeNamespacedName, migcontroller)
-			if err != nil && errors.IsNotFound(err) {
-				resource := &migrationsv1alpha1.MigController{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      resourceName,
-						Namespace: "default",
-					},
-					// TODO(user): Specify other spec details if needed.
-				}
-				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
+			resource := &migrationsv1alpha1.MigController{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      resourceName,
+					Namespace: testNamespace,
+				},
+				Spec: migrationsv1alpha1.MigControllerSpec{},
 			}
+			Expect(k8sClient.Create(ctx, resource)).To(Succeed())
+			recorder := record.NewFakeRecorder(10)
+			Expect(k8sClient.Get(ctx, typeNamespacedName, migcontroller)).To(Succeed())
+			migcontroller.Status.ObservedVersion = "0.0.1"
+			Expect(k8sClient.Status().Update(ctx, migcontroller)).To(Succeed())
+
+			controllerReconciler = &MigControllerReconciler{
+				Client: k8sClient,
+				scheme: k8sClient.Scheme(),
+				namespacedArgs: &namespaced.FactoryArgs{
+					OperatorVersion: "0.0.1",
+				},
+				clusterArgs: &cluster.FactoryArgs{
+					Namespace: testNamespace,
+					Client:    k8sClient,
+					Logger:    log,
+				},
+			}
+
+			mgr, err := manager.New(cfg, manager.Options{
+				Scheme: k8sClient.Scheme(),
+			})
+			Expect(err).NotTo(HaveOccurred())
+			callbackDispatcher := callbacks.NewCallbackDispatcher(log, k8sClient, k8sClient, k8sClient.Scheme(), testNamespace)
+			controllerReconciler.reconciler = sdkr.NewReconciler(
+				controllerReconciler, log, k8sClient,
+				callbackDispatcher, k8sClient.Scheme(), mgr.GetCache,
+				createVersionLabel, updateVersionLabel, LastAppliedConfigAnnotation,
+				requeueInterval, finalizerName, true, recorder,
+			).WithNamespacedCR()
+			Expect(controllerReconciler.SetupWithManager(mgr)).To(Succeed())
 		})
 
 		AfterEach(func() {
@@ -67,13 +105,13 @@ var _ = Describe("MigController Controller", func() {
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
 		})
 		It("should successfully reconcile the resource", func() {
-			By("Reconciling the created resource")
-			controllerReconciler := &MigControllerReconciler{
-				Client: k8sClient,
-				scheme: k8sClient.Scheme(),
-			}
+			resource := &migrationsv1alpha1.MigController{}
+			err := k8sClient.Get(ctx, typeNamespacedName, resource)
+			Expect(err).NotTo(HaveOccurred())
 
-			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
+			Expect(resource.Status.ObservedVersion).To(Equal("0.0.1"))
+			By("Reconciling the created resource")
+			_, err = controllerReconciler.Reconcile(ctx, reconcile.Request{
 				NamespacedName: typeNamespacedName,
 			})
 			Expect(err).NotTo(HaveOccurred())

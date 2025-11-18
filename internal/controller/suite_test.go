@@ -25,6 +25,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -83,10 +85,14 @@ var _ = BeforeSuite(func() {
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme.Scheme})
 	Expect(err).NotTo(HaveOccurred())
 	Expect(k8sClient).NotTo(BeNil())
+
+	CreateKubeVirtNamespace(ctx, k8sClient, testNamespace)
+
 })
 
 var _ = AfterSuite(func() {
 	By("tearing down the test environment")
+	DeleteKubeVirtNamespace(ctx, k8sClient, testNamespace)
 	cancel()
 	err := testEnv.Stop()
 	Expect(err).NotTo(HaveOccurred())
@@ -113,4 +119,15 @@ func getFirstFoundEnvTestBinaryDir() string {
 		}
 	}
 	return ""
+}
+
+func CreateKubeVirtNamespace(ctx context.Context, client client.Client, namespace string) {
+	kvNamespace := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{Name: namespace},
+	}
+	Expect(client.Create(ctx, kvNamespace)).To(Succeed())
+}
+
+func DeleteKubeVirtNamespace(ctx context.Context, client client.Client, namespace string) {
+	Expect(client.Delete(ctx, &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: namespace}})).To(Succeed())
 }

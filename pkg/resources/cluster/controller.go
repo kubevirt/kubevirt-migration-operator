@@ -177,13 +177,6 @@ func createControllerClusterRole() *rbacv1.ClusterRole {
 	return utils.ResourceBuilder.CreateClusterRole(common.ControllerResourceName, getControllerClusterPolicyRules())
 }
 
-// createMigClusterCRD creates the migcluster schema
-func createMigClusterCRD() *extv1.CustomResourceDefinition {
-	crd := extv1.CustomResourceDefinition{}
-	_ = k8syaml.NewYAMLToJSONDecoder(strings.NewReader(resources.MigrationControllerCRDs["migcluster"])).Decode(&crd)
-	return &crd
-}
-
 // createMigMigrationCRD creates the migmigration schema
 func createMigMigrationCRD() *extv1.CustomResourceDefinition {
 	crd := extv1.CustomResourceDefinition{}
