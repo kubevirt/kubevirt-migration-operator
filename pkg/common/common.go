@@ -13,7 +13,8 @@ const (
 	// AppKubernetesComponentLabel is the Kubernetes recommended component label
 	AppKubernetesComponentLabel = "app.kubernetes.io/component"
 
-	// The restricted SCC and particularly v2 is considered best practice for workloads that can manage without extended privileges
+	// The restricted SCC and particularly v2 is considered best practice for
+	//  workloads that can manage without extended privileges
 	RestrictedSCCName = "restricted-v2"
 
 	// InstallerPartOfLabel provides a constant to capture our env variable "INSTALLER_PART_OF_LABEL"

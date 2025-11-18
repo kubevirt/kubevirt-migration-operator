@@ -12,7 +12,7 @@ spec:
     listKind: MigControllerList
     plural: migcontrollers
     singular: migcontroller
-  scope: Cluster
+  scope: Namespaced
   versions:
   - name: v1alpha1
     schema:

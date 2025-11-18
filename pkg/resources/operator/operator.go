@@ -32,8 +32,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
 
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	"kubevirt.io/kubevirt-migration-operator/pkg/resources"
 	cluster "kubevirt.io/kubevirt-migration-operator/pkg/resources/cluster"
 	namespaced "kubevirt.io/kubevirt-migration-operator/pkg/resources/namespaced"
@@ -106,20 +104,21 @@ func getClusterPolicyRules() []rbacv1.PolicyRule {
 	return rules
 }
 
-func createClusterRole() *rbacv1.ClusterRole {
-	return utils.ResourceBuilder.CreateOperatorClusterRole(clusterRoleName, getClusterPolicyRules())
-}
+// func createClusterRole() *rbacv1.ClusterRole {
+// 	return utils.ResourceBuilder.CreateOperatorClusterRole(clusterRoleName, getClusterPolicyRules())
+// }
 
-func createClusterRoleBinding(namespace string) *rbacv1.ClusterRoleBinding {
-	return utils.ResourceBuilder.CreateOperatorClusterRoleBinding(serviceAccountName, clusterRoleName, serviceAccountName, namespace)
-}
+// func createClusterRoleBinding(namespace string) *rbacv1.ClusterRoleBinding {
+// 	return utils.ResourceBuilder.CreateOperatorClusterRoleBinding(serviceAccountName,
+//  clusterRoleName, serviceAccountName, namespace)
+// }
 
-func createClusterRBAC(args *FactoryArgs) []client.Object {
-	return []client.Object{
-		createClusterRole(),
-		createClusterRoleBinding(args.NamespacedArgs.Namespace),
-	}
-}
+// func createClusterRBAC(args *FactoryArgs) []client.Object {
+// 	return []client.Object{
+// 		createClusterRole(),
+// 		createClusterRoleBinding(args.NamespacedArgs.Namespace),
+// 	}
+// }
 
 func getNamespacedPolicyRules() []rbacv1.PolicyRule {
 	rules := []rbacv1.PolicyRule{
@@ -176,55 +175,62 @@ func getNamespacedPolicyRules() []rbacv1.PolicyRule {
 	return rules
 }
 
-func createServiceAccount(namespace string) *corev1.ServiceAccount {
-	return utils.ResourceBuilder.CreateOperatorServiceAccount(serviceAccountName, namespace)
-}
+// func createServiceAccount(namespace string) *corev1.ServiceAccount {
+// 	return utils.ResourceBuilder.CreateOperatorServiceAccount(serviceAccountName, namespace)
+// }
 
-func createNamespacedRole(namespace string) *rbacv1.Role {
-	role := utils.ResourceBuilder.CreateRole(roleName, getNamespacedPolicyRules())
-	role.Namespace = namespace
-	return role
-}
+// func createNamespacedRole(namespace string) *rbacv1.Role {
+// 	role := utils.ResourceBuilder.CreateRole(roleName, getNamespacedPolicyRules())
+// 	role.Namespace = namespace
+// 	return role
+// }
 
-func createNamespacedRoleBinding(namespace string) *rbacv1.RoleBinding {
-	roleBinding := utils.ResourceBuilder.CreateRoleBinding(serviceAccountName, roleName, serviceAccountName, namespace)
-	roleBinding.Namespace = namespace
-	return roleBinding
-}
+// func createNamespacedRoleBinding(namespace string) *rbacv1.RoleBinding {
+// 	roleBinding := utils.ResourceBuilder.CreateRoleBinding(serviceAccountName, roleName, serviceAccountName, namespace)
+// 	roleBinding.Namespace = namespace
+// 	return roleBinding
+// }
 
-func createNamespacedRBAC(args *FactoryArgs) []client.Object {
-	return []client.Object{
-		createServiceAccount(args.NamespacedArgs.Namespace),
-		createNamespacedRole(args.NamespacedArgs.Namespace),
-		createNamespacedRoleBinding(args.NamespacedArgs.Namespace),
-	}
-}
+// func createNamespacedRBAC(args *FactoryArgs) []client.Object {
+// 	return []client.Object{
+// 		createServiceAccount(args.NamespacedArgs.Namespace),
+// 		createNamespacedRole(args.NamespacedArgs.Namespace),
+// 		createNamespacedRoleBinding(args.NamespacedArgs.Namespace),
+// 	}
+// }
 
-func createDeployment(args *FactoryArgs) []client.Object {
-	return []client.Object{
-		createOperatorDeployment(args.NamespacedArgs.OperatorVersion,
-			args.NamespacedArgs.Namespace,
-			args.NamespacedArgs.DeployClusterResources,
-			args.Image,
-			args.NamespacedArgs.ControllerImage,
-			args.NamespacedArgs.Verbosity,
-			args.NamespacedArgs.PullPolicy,
-		),
-	}
-}
+// func createDeployment(args *FactoryArgs) []client.Object {
+// 	return []client.Object{
+// 		createOperatorDeployment(args.NamespacedArgs.OperatorVersion,
+// 			args.NamespacedArgs.Namespace,
+// 			args.NamespacedArgs.DeployClusterResources,
+// 			args.Image,
+// 			args.NamespacedArgs.ControllerImage,
+// 			args.NamespacedArgs.Verbosity,
+// 			args.NamespacedArgs.PullPolicy,
+// 		),
+// 	}
+// }
 
-func createCRD(args *FactoryArgs) []client.Object {
-	return []client.Object{
-		createMigControllerCRD(),
-	}
-}
+// func createCRD(args *FactoryArgs) []client.Object {
+// 	return []client.Object{
+// 		createMigControllerCRD(),
+// 	}
+// }
+
 func createMigControllerCRD() *extv1.CustomResourceDefinition {
 	crd := extv1.CustomResourceDefinition{}
 	_ = k8syaml.NewYAMLToJSONDecoder(strings.NewReader(resources.MigrationControllerCRDs["migcontroller"])).Decode(&crd)
 	return &crd
 }
 
-func createOperatorEnvVar(operatorVersion, deployClusterResources, operatorImage, controllerImage, verbosity, pullPolicy string) []corev1.EnvVar {
+func createOperatorEnvVar(operatorVersion,
+	deployClusterResources,
+	operatorImage,
+	controllerImage,
+	verbosity,
+	pullPolicy string,
+) []corev1.EnvVar {
 	return []corev1.EnvVar{
 		{
 			Name:  "DEPLOY_CLUSTER_RESOURCES",
@@ -250,11 +256,17 @@ func createOperatorEnvVar(operatorVersion, deployClusterResources, operatorImage
 			Name:  "MONITORING_NAMESPACE",
 			Value: "",
 		},
+		{
+			Name:  "OPERATOR_IMAGE",
+			Value: operatorImage,
+		},
 	}
 }
 
-func createOperatorDeployment(operatorVersion, namespace, deployClusterResources, operatorImage, controllerImage, verbosity, pullPolicy string) *appsv1.Deployment {
-	deployment := utils.CreateOperatorDeployment("kubevirt-migration-operator", namespace, "name", "kubevirt-migration-operator", serviceAccountName, int32(1))
+func createOperatorDeployment(operatorVersion, namespace, deployClusterResources, operatorImage, controllerImage,
+	verbosity, pullPolicy string) *appsv1.Deployment {
+	deployment := utils.CreateOperatorDeployment("kubevirt-migration-operator", namespace, "name",
+		"kubevirt-migration-operator", serviceAccountName, int32(1))
 	container := utils.CreatePortsContainer("operator", operatorImage, pullPolicy, createOperatorPorts())
 	container.Resources = corev1.ResourceRequirements{
 		Requests: corev1.ResourceList{
@@ -290,7 +302,8 @@ func createOperatorDeployment(operatorVersion, namespace, deployClusterResources
 		InitialDelaySeconds: 5,
 		TimeoutSeconds:      10,
 	}
-	container.Env = createOperatorEnvVar(operatorVersion, deployClusterResources, operatorImage, controllerImage, verbosity, pullPolicy)
+	container.Env = createOperatorEnvVar(operatorVersion, deployClusterResources, operatorImage, controllerImage,
+		verbosity, pullPolicy)
 	deployment.Spec.Template.Spec.Containers = []corev1.Container{container}
 	return deployment
 }
@@ -325,6 +338,7 @@ type csvStrategySpec struct {
 	Deployments        []csvDeployments `json:"deployments"`
 }
 
+// nolint
 func createClusterServiceVersion(data *ClusterServiceVersionData) (*csvv1.ClusterServiceVersion, error) {
 	description := `
 The Kubevirt Migration Controller is an extension that provides extra capabilities capitalizing on kubevirt VM migration methods.

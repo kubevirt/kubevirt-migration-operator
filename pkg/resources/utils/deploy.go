@@ -94,7 +94,8 @@ func CreatePortsContainer(name, image, pullPolicy string, ports []corev1.Contain
 }
 
 // CreateDeployment creates deployment
-func CreateDeployment(name, matchKey, matchValue, serviceAccountName string, replicas int32, infraNodePlacement *sdkapi.NodePlacement) *appsv1.Deployment {
+func CreateDeployment(name, matchKey, matchValue, serviceAccountName string,
+	replicas int32, infraNodePlacement *sdkapi.NodePlacement) *appsv1.Deployment {
 	podSpec := corev1.PodSpec{
 		SecurityContext: &corev1.PodSecurityContext{
 			RunAsNonRoot: ptr.To(true),
@@ -105,12 +106,14 @@ func CreateDeployment(name, matchKey, matchValue, serviceAccountName string, rep
 		inpCopy = &sdkapi.NodePlacement{}
 	}
 	inpCopy.Affinity = AddPodPreferredDuringSchedulingIgnoredDuringExecution(name, inpCopy.Affinity)
-	deployment := ResourceBuilder.CreateDeployment(name, "", matchKey, matchValue, serviceAccountName, replicas, podSpec, inpCopy)
+	deployment := ResourceBuilder.CreateDeployment(name, "", matchKey, matchValue, serviceAccountName,
+		replicas, podSpec, inpCopy)
 	return deployment
 }
 
 // CreateOperatorDeployment creates operator deployment
-func CreateOperatorDeployment(name, namespace, matchKey, matchValue, serviceAccount string, numReplicas int32) *appsv1.Deployment {
+func CreateOperatorDeployment(name, namespace, matchKey, matchValue, serviceAccount string,
+	numReplicas int32) *appsv1.Deployment {
 	podSpec := corev1.PodSpec{
 		SecurityContext: &corev1.PodSecurityContext{
 			RunAsNonRoot: ptr.To(true),
@@ -137,8 +140,10 @@ func CreateOperatorDeployment(name, namespace, matchKey, matchValue, serviceAcco
 			},
 		},
 	}
-	deployment := ResourceBuilder.CreateOperatorDeployment(name, namespace, matchKey, matchValue, serviceAccount, numReplicas, podSpec)
-	// labels := util.MergeLabels(deployment.Spec.Template.GetLabels(), map[string]string{PrometheusLabelKey: PrometheusLabelValue, CDIComponentLabel: CDIOperatorName})
+	deployment := ResourceBuilder.CreateOperatorDeployment(name, namespace, matchKey,
+		matchValue, serviceAccount, numReplicas, podSpec)
+	// labels := util.MergeLabels(deployment.Spec.Template.GetLabels(), map[string]string{PrometheusLabelKey:
+	//  PrometheusLabelValue, CDIComponentLabel: CDIOperatorName})
 	// deployment.SetLabels(labels)
 	// deployment.Spec.Template.SetLabels(labels)
 	if deployment.Spec.Template.Annotations == nil {
@@ -169,16 +174,22 @@ func AddPodPreferredDuringSchedulingIgnoredDuringExecution(name string, affinity
 
 	if affinity != nil && affinity.PodAntiAffinity != nil {
 		affinityCopy = affinity.DeepCopy()
-		affinityCopy.PodAntiAffinity.PreferredDuringSchedulingIgnoredDuringExecution = append(affinityCopy.PodAntiAffinity.PreferredDuringSchedulingIgnoredDuringExecution, preferredDuringSchedulingIgnoredDuringExecution)
+		affinityCopy.PodAntiAffinity.PreferredDuringSchedulingIgnoredDuringExecution =
+			append(affinityCopy.PodAntiAffinity.PreferredDuringSchedulingIgnoredDuringExecution,
+				preferredDuringSchedulingIgnoredDuringExecution)
 	} else if affinity != nil {
 		affinityCopy = affinity.DeepCopy()
 		affinityCopy.PodAntiAffinity = &corev1.PodAntiAffinity{
-			PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{preferredDuringSchedulingIgnoredDuringExecution},
+			PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
+				preferredDuringSchedulingIgnoredDuringExecution,
+			},
 		}
 	} else {
 		affinityCopy = &corev1.Affinity{
 			PodAntiAffinity: &corev1.PodAntiAffinity{
-				PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{preferredDuringSchedulingIgnoredDuringExecution},
+				PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
+					preferredDuringSchedulingIgnoredDuringExecution,
+				},
 			},
 		}
 	}

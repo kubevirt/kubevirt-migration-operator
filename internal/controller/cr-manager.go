@@ -62,9 +62,9 @@ func (r *MigControllerReconciler) getNamespacedArgs(cr *migrationsv1alpha1.MigCo
 		}
 		if cr.Spec.PriorityClass != nil && string(*cr.Spec.PriorityClass) != "" {
 			result.PriorityClassName = string(*cr.Spec.PriorityClass)
-		} else {
-			// result.PriorityClassName = util.PriorityClass
-		}
+		} // else {
+		// result.PriorityClassName = util.PriorityClass
+		// }
 		// Verify the priority class name exists.
 		priorityClass := &schedulingv1.PriorityClass{}
 		if err := r.Client.Get(context.TODO(), types.NamespacedName{Name: result.PriorityClassName}, priorityClass); err != nil {

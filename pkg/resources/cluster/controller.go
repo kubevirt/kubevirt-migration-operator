@@ -38,7 +38,12 @@ func createControllerResources(args *FactoryArgs) []client.Object {
 }
 
 func createControllerClusterRoleBinding(namespace string) *rbacv1.ClusterRoleBinding {
-	return utils.ResourceBuilder.CreateClusterRoleBinding(common.ControllerServiceAccountName, common.ControllerResourceName, common.ControllerServiceAccountName, namespace)
+	return utils.ResourceBuilder.CreateClusterRoleBinding(
+		common.ControllerServiceAccountName,
+		common.ControllerResourceName,
+		common.ControllerServiceAccountName,
+		namespace,
+	)
 }
 
 func getControllerClusterPolicyRules() []rbacv1.PolicyRule {

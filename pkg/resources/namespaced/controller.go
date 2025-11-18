@@ -49,7 +49,12 @@ func createControllerResources(args *FactoryArgs) []client.Object {
 }
 
 func createControllerRoleBinding() *rbacv1.RoleBinding {
-	return utils.ResourceBuilder.CreateRoleBinding(common.ControllerResourceName, common.ControllerResourceName, common.ControllerServiceAccountName, "")
+	return utils.ResourceBuilder.CreateRoleBinding(
+		common.ControllerResourceName,
+		common.ControllerResourceName,
+		common.ControllerServiceAccountName,
+		"",
+	)
 }
 
 func getControllerNamespacedRules() []rbacv1.PolicyRule {
@@ -111,9 +116,16 @@ func createControllerServiceAccount() *corev1.ServiceAccount {
 	return utils.ResourceBuilder.CreateServiceAccount(common.ControllerServiceAccountName)
 }
 
-func createControllerDeployment(controllerImage, verbosity, pullPolicy string, priorityClassName string, infraNodePlacement *sdkapi.NodePlacement) *appsv1.Deployment {
+func createControllerDeployment(controllerImage, verbosity, pullPolicy, priorityClassName string,
+	infraNodePlacement *sdkapi.NodePlacement) *appsv1.Deployment {
 	// The match selector is immutable. that's why we should always use the same labels.
-	deployment := utils.CreateDeployment(common.ControllerResourceName, common.ComponentLabel, common.ControllerResourceName, common.ControllerServiceAccountName, int32(1), infraNodePlacement)
+	deployment := utils.CreateDeployment(common.ControllerResourceName,
+		common.ComponentLabel,
+		common.ControllerResourceName,
+		common.ControllerServiceAccountName,
+		int32(1),
+		infraNodePlacement,
+	)
 	deployment.ObjectMeta.Labels[common.ComponentLabel] = common.ControllerResourceName
 	if priorityClassName != "" {
 		deployment.Spec.Template.Spec.PriorityClassName = priorityClassName
@@ -126,8 +138,10 @@ func createControllerDeployment(controllerImage, verbosity, pullPolicy string, p
 			Protocol:      "TCP",
 		},
 	}
-	labels := mergeLabels(deployment.Spec.Template.GetLabels(), map[string]string{common.PrometheusLabelKey: common.PrometheusLabelValue})
-	//Add label for pod affinity
+	labels := mergeLabels(deployment.Spec.Template.GetLabels(), map[string]string{
+		common.PrometheusLabelKey: common.PrometheusLabelValue,
+	})
+	// Add label for pod affinity
 	deployment.SetLabels(labels)
 	deployment.Spec.Template.SetLabels(labels)
 	if deployment.Spec.Template.Annotations == nil {
