@@ -44,7 +44,7 @@ func createControllerResources(args *FactoryArgs) []client.Object {
 			args.PullPolicy,
 			args.PriorityClassName,
 			args.InfraNodePlacement),
-		// createPrometheusService(),
+		createPrometheusService(),
 	}
 }
 
@@ -209,18 +209,19 @@ func mergeLabels(src, dest map[string]string) map[string]string {
 	return dest
 }
 
-// func createPrometheusService() *corev1.Service {
-// 	service := utils.ResourceBuilder.CreateService(PrometheusServiceName, PrometheusLabelKey, PrometheusLabelValue, nil)
-// 	service.Spec.Ports = []corev1.ServicePort{
-// 		{
-// 			Name: "metrics",
-// 			Port: 8443,
-// 			TargetPort: intstr.IntOrString{
-// 				Type:   intstr.String,
-// 				StrVal: "metrics",
-// 			},
-// 			Protocol: corev1.ProtocolTCP,
-// 		},
-// 	}
-// 	return service
-// }
+func createPrometheusService() *corev1.Service {
+	service := utils.ResourceBuilder.CreateService(common.PrometheusServiceName,
+		common.PrometheusLabelKey, common.PrometheusLabelValue, nil)
+	service.Spec.Ports = []corev1.ServicePort{
+		{
+			Name: common.PrometheusServiceName,
+			Port: 8443,
+			TargetPort: intstr.IntOrString{
+				Type:   intstr.String,
+				StrVal: "metrics",
+			},
+			Protocol: corev1.ProtocolTCP,
+		},
+	}
+	return service
+}

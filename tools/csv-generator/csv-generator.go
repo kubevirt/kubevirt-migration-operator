@@ -17,9 +17,14 @@ limitations under the License.
 package main
 
 import (
+	"encoding/json"
 	"flag"
+	"io"
 	"os"
+	"strings"
 
+	"github.com/ghodss/yaml"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	operator "kubevirt.io/kubevirt-migration-operator/pkg/resources/operator"
 )
 
@@ -70,4 +75,67 @@ func main() {
 			panic(err)
 		}
 	}
+}
+
+// marshallObject marshalls an object to yaml appropriate for kubectl
+func marshallObject(obj interface{}, writer io.Writer) error {
+	jsonBytes, err := json.Marshal(obj)
+	if err != nil {
+		return err
+	}
+
+	var r unstructured.Unstructured
+	if err := json.Unmarshal(jsonBytes, &r.Object); err != nil {
+		return err
+	}
+
+	unstructured.RemoveNestedField(r.Object, "metadata", "creationTimestamp")
+	unstructured.RemoveNestedField(r.Object, "spec", "template", "metadata", "creationTimestamp")
+	unstructured.RemoveNestedField(r.Object, "status")
+
+	deployments, exists, err := unstructured.NestedSlice(r.Object, "spec", "install", "spec", "deployments")
+	if err != nil {
+		return err
+	}
+	// remove timestamp and status from deployments in CSV objects
+	// remove status and metadata.creationTimestamp
+	if exists {
+		for _, obj := range deployments {
+			deployment := obj.(map[string]interface{})
+			unstructured.RemoveNestedField(deployment, "metadata", "creationTimestamp")
+			unstructured.RemoveNestedField(deployment, "spec", "template", "metadata", "creationTimestamp")
+			unstructured.RemoveNestedField(deployment, "status")
+		}
+		if err = unstructured.SetNestedSlice(r.Object, deployments, "spec", "install", "spec", "deployments"); err != nil {
+			return err
+		}
+	}
+
+	jsonBytes, err = json.Marshal(r.Object)
+	if err != nil {
+		return err
+	}
+
+	yamlBytes, err := yaml.JSONToYAML(jsonBytes)
+	if err != nil {
+		return err
+	}
+
+	// fix templates by removing quotes...
+	s := string(yamlBytes)
+	s = strings.Replace(s, "'{{", "{{", -1)
+	s = strings.Replace(s, "}}'", "}}", -1)
+	yamlBytes = []byte(s)
+
+	_, err = writer.Write([]byte("---\n"))
+	if err != nil {
+		return err
+	}
+
+	_, err = writer.Write(yamlBytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

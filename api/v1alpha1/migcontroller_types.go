@@ -23,9 +23,6 @@ import (
 	sdkapi "kubevirt.io/controller-lifecycle-operator-sdk/api"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // MigControllerSpec defines the desired state of MigController.
 type MigControllerSpec struct {
 	// PriorityClass of the control plane

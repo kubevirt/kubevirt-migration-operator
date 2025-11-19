@@ -47,6 +47,8 @@ func createControllerClusterRoleBinding(namespace string) *rbacv1.ClusterRoleBin
 }
 
 func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
+	// TODO: Figure out a way to read the RBAC rules from the controller config/rbac/role.yaml
+	// file in the kubevirt-migration-controller project.
 	return []rbacv1.PolicyRule{
 		{
 			APIGroups: []string{
@@ -79,11 +81,11 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 			},
 			Resources: []string{
 				"pods",
-				"persistentvolumes",
 			},
 			Verbs: []string{
 				"list",
 				"watch",
+				"delete",
 			},
 		},
 		{
@@ -103,7 +105,7 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 				"kubevirt.io",
 			},
 			Resources: []string{
-				"virtualmachines",
+				"virtualmachineinstances",
 			},
 			Verbs: []string{
 				"list",
@@ -113,12 +115,56 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 		},
 		{
 			APIGroups: []string{
+				"kubevirt.io",
+			},
+			Resources: []string{
+				"virtualmachines",
+			},
+			Verbs: []string{
+				"list",
+				"watch",
+				"get",
+				"patch",
+			},
+		},
+		{
+			APIGroups: []string{
+				"kubevirt.io",
+			},
+			Resources: []string{
+				"virtualmachineinstancemigrations",
+			},
+			Verbs: []string{
+				"list",
+				"watch",
+				"get",
+				"delete",
+			},
+		},
+		{
+			APIGroups: []string{
+				"cdi.kubevirt.io",
+			},
+			Resources: []string{
+				"datavolumes",
+			},
+			Verbs: []string{
+				"list",
+				"watch",
+				"get",
+				"create",
+				"update",
+				"patch",
+				"delete",
+			},
+		},
+		{
+			APIGroups: []string{
 				"migrations.kubevirt.io",
 			},
 			Resources: []string{
-				"migclusters",
-				"migmigrations",
-				"migplans",
+				"virtualmachinestoragemigrations",
+				"virtualmachinestoragemigrationplans",
 			},
 			Verbs: []string{
 				"list",
@@ -135,9 +181,7 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 				"migrations.kubevirt.io",
 			},
 			Resources: []string{
-				"migclusters/finalizers",
-				"migmigrations/finalizers",
-				"migplans/finalizers",
+				"virtualmachineinstancemigrations/finalizers",
 			},
 			Verbs: []string{
 				"update",
@@ -148,9 +192,8 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 				"migrations.kubevirt.io",
 			},
 			Resources: []string{
-				"migclusters/status",
-				"migmigrations/status",
-				"migplans/status",
+				"virtualmachinestoragemigrations/status",
+				"virtualmachinestoragemigrationplans/status",
 			},
 			Verbs: []string{
 				"get",
@@ -177,16 +220,16 @@ func createControllerClusterRole() *rbacv1.ClusterRole {
 	return utils.ResourceBuilder.CreateClusterRole(common.ControllerResourceName, getControllerClusterPolicyRules())
 }
 
-// createMigMigrationCRD creates the migmigration schema
-func createMigMigrationCRD() *extv1.CustomResourceDefinition {
+// createVirtualMachineStorageMigrationCRD creates the migmigration schema
+func createVirtualMachineStorageMigrationCRD() *extv1.CustomResourceDefinition {
 	crd := extv1.CustomResourceDefinition{}
-	_ = k8syaml.NewYAMLToJSONDecoder(strings.NewReader(resources.MigrationControllerCRDs["migmigration"])).Decode(&crd)
+	_ = k8syaml.NewYAMLToJSONDecoder(strings.NewReader(resources.MigrationControllerCRDs["virtualmachinestoragemigration"])).Decode(&crd) //nolint
 	return &crd
 }
 
-// createMigPlanCRD creates the migplan schema
-func createMigPlanCRD() *extv1.CustomResourceDefinition {
+// createVirtualMachineStorageMigrationPlanCRD creates the migplan schema
+func createVirtualMachineStorageMigrationPlanCRD() *extv1.CustomResourceDefinition {
 	crd := extv1.CustomResourceDefinition{}
-	_ = k8syaml.NewYAMLToJSONDecoder(strings.NewReader(resources.MigrationControllerCRDs["migplan"])).Decode(&crd)
+	_ = k8syaml.NewYAMLToJSONDecoder(strings.NewReader(resources.MigrationControllerCRDs["virtualmachinestoragemigrationplan"])).Decode(&crd) //nolint
 	return &crd
 }

@@ -73,6 +73,8 @@ var _ = Describe("MigController Controller", func() {
 				scheme: k8sClient.Scheme(),
 				namespacedArgs: &namespaced.FactoryArgs{
 					OperatorVersion: "0.0.1",
+					Namespace:       testNamespace,
+					ControllerImage: "kubevirt/kubevirt-migration-operator:latest",
 				},
 				clusterArgs: &cluster.FactoryArgs{
 					Namespace: testNamespace,

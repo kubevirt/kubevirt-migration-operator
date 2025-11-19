@@ -24,6 +24,8 @@ const (
 
 	// PrometheusLabelKey provides the label to indicate prometheus metrics are available in the pods.
 	PrometheusLabelKey = "prometheus.migrations.kubevirt.io"
+	// PrometheusServiceName is the name of the service that exposes prometheus metrics
+	PrometheusServiceName = "kubevirt-migration-prometheus"
 	// PrometheusLabelValue provides the label value
 	PrometheusLabelValue = "true"
 

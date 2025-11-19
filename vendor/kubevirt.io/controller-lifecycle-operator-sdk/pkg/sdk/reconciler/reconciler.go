@@ -230,9 +230,11 @@ func (r *Reconciler) ReconcileUpdate(logger logr.Logger, cr client.Object, opera
 			sdk.SetLabel(r.createVersionLabel, operatorVersion, desiredObj)
 			r.setRecommendedLabels(cr, desiredObj)
 
-			if err = controllerutil.SetControllerReference(cr, desiredObj, r.scheme); err != nil {
-				r.recorder.Event(cr, corev1.EventTypeWarning, createResourceFailed, fmt.Sprintf("Failed to create resource %s, %v", desiredObj.GetName(), err))
-				return reconcile.Result{}, err
+			if desiredObj.GetNamespace() != "" {
+				if err = controllerutil.SetControllerReference(cr, desiredObj, r.scheme); err != nil {
+					r.recorder.Event(cr, corev1.EventTypeWarning, createResourceFailed, fmt.Sprintf("Failed to create resource %s, %v", desiredObj.GetName(), err))
+					return reconcile.Result{}, err
+				}
 			}
 
 			// PRE_CREATE callback

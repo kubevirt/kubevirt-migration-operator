@@ -50,7 +50,11 @@ endif
 # This is useful for CI or a project to utilize a specific version of the operator-sdk toolkit.
 OPERATOR_SDK_VERSION ?= v1.40.0
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMG ?= kubevirt-migration-operator:latest
+
+DOCKER_REPO ?= localhost
+DEPLOYMENT_TARGET ?= default
+
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -59,11 +63,21 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
+KUBECTL_PATH ?= kubectl
+ifneq ($(or $(filter undefined,$(origin DOCKER_REPO)),$(filter localhost,$(DOCKER_REPO))),)
+$(info Using kubevirtci kubectl)
+KUBECTL_PATH = $(PWD)/cluster-up/kubectl.sh
+endif
+
+MIGRATION_CONTROLLER_NAMESPACE ?= kubevirt
+KUBECONFIG ?= $(PWD)/_ci-configs/$(KUBEVIRT_PROVIDER)/.kubeconfig
+KUBEURL ?= ""
+
 # CONTAINER_TOOL defines the container tool to be used for building images.
 # Be aware that the target commands are only tested with Docker which is
 # scaffolded by default. However, you might want to replace it to use other
 # tools. (i.e. podman)
-CONTAINER_TOOL ?= docker
+CONTAINER_TOOL ?= podman
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
@@ -94,7 +108,7 @@ help: ## Display this help.
 
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./api/..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
@@ -109,16 +123,14 @@ vet: ## Run go vet against code.
 	go vet ./...
 
 .PHONY: test
-test: manifests generate fmt vet setup-envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
+test: manifests generate fmt vet setup-envtest ginkgo ## Run tests.
+	@echo "Current path [$(PWD)] Running unit tests ginkgo $(GINKGO) saving results to $(ARTIFACTS)/junit.functest.xml"
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" $(GINKGO) -v --coverprofile=.coverage-report.out --output-dir=$(ARTIFACTS) --junit-report=junit.functest.xml  $$(go list ./... | grep -v /e2e | awk '{gsub("kubevirt.io/kubevirt-migration-operator/", ""); print}')
+#	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test -v $$(go list ./... | grep -v /e2e) -coverprofile cover.out
 
-# TODO(user): To use a different vendor for e2e tests, modify the setup under 'tests/e2e'.
-# The default setup assumes Kind is pre-installed and builds/loads the Manager Docker image locally.
-# CertManager is installed by default; skip with:
-# - CERT_MANAGER_INSTALL_SKIP=true
 .PHONY: test-e2e
-test-e2e: manifests generate fmt vet ## Run the e2e tests. Expected an isolated environment using Kind.
-	go test ./test/e2e/ -v -ginkgo.v
+test-e2e: manifests generate fmt vet ## Run the e2e tests.
+	go test ./test/e2e/ -v -ginkgo.v --kubectl-path=$(KUBECTL_PATH) --test-kubeconfig=$(KUBECONFIG) --kubeurl=$(KUBEURL) --migration-operator-namespace=$(MIGRATION_CONTROLLER_NAMESPACE)
 
 .PHONY: lint
 lint: golangci-lint ## Run golangci-lint linter
@@ -147,11 +159,11 @@ run: manifests generate fmt vet ## Run a controller from your host.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 .PHONY: docker-build
 docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build -t ${IMG} .
+	$(CONTAINER_TOOL) build -t ${DOCKER_REPO_IMAGE} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
-	$(CONTAINER_TOOL) push ${IMG}
+	$(CONTAINER_TOOL) push ${DOCKER_PUSH_FLAGS} ${DOCKER_REPO_IMAGE}
 
 # PLATFORMS defines the target platforms for the manager image be built to provide support to multiple
 # architectures. (i.e. make docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:
@@ -173,7 +185,7 @@ docker-buildx: ## Build and push docker image for the manager for cross-platform
 .PHONY: build-installer
 build-installer: manifests generate kustomize ## Generate a consolidated YAML with CRDs and deployment.
 	mkdir -p dist
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/operator && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default > dist/install.yaml
 
 ##@ Deployment
@@ -192,12 +204,13 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default | $(KUBECTL) apply -f -
+	@echo "Deploying controller to the K8s cluster specified in ~/.kube/config. MANIFEST_IMG: ${MANIFEST_IMG}"
+	cd config/operator && $(KUSTOMIZE) edit set image controller=${MANIFEST_IMG}
+	$(KUSTOMIZE) build config/$(DEPLOYMENT_TARGET) | $(KUBECTL) apply -f -
 
 .PHONY: undeploy
 undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
-	$(KUSTOMIZE) build config/default | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
+	$(KUSTOMIZE) build config/$(DEPLOYMENT_TARGET) | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
 
 ##@ Dependencies
 
@@ -208,11 +221,16 @@ $(LOCALBIN):
 
 ## Tool Binaries
 KUBECTL ?= ./cluster-up/kubectl.sh
+KUBECONFIG ?= $(PWD)/_ci-configs/$(KUBEVIRT_PROVIDER)/.kubeconfig
+KUBEURL ?= ""
 KIND ?= kind
 KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 GOLANGCI_LINT = $(LOCALBIN)/golangci-lint
+ARTIFACTS ?= $(PWD)/_artifacts
+GOTESTSUM ?= $(LOCALBIN)/gotestsum
+GINKGO ?= $(LOCALBIN)/ginkgo
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.6.0
@@ -222,6 +240,9 @@ ENVTEST_VERSION ?= $(shell go list -m -f "{{ .Version }}" sigs.k8s.io/controller
 #ENVTEST_K8S_VERSION is the version of Kubernetes to use for setting up ENVTEST binaries (i.e. 1.31)
 ENVTEST_K8S_VERSION ?= $(shell go list -m -f "{{ .Version }}" k8s.io/api | awk -F'[v.]' '{printf "1.%d", $$3}')
 GOLANGCI_LINT_VERSION ?= v1.63.4
+GOTESTSUM_VERSION ?= v1.13.0
+GINKGO_VERSION ?= v2.27.2
+
 
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
@@ -232,6 +253,16 @@ $(KUSTOMIZE): $(LOCALBIN)
 controller-gen: $(CONTROLLER_GEN) ## Download controller-gen locally if necessary.
 $(CONTROLLER_GEN): $(LOCALBIN)
 	$(call go-install-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen,$(CONTROLLER_TOOLS_VERSION))
+
+.PHONY: gotestsum
+gotestsum: $(GOTESTSUM) ## Download gotestsum locally if necessary.
+$(GOTESTSUM): $(LOCALBIN)
+	$(call go-install-tool,$(GOTESTSUM),gotest.tools/gotestsum,$(GOTESTSUM_VERSION))
+
+.PHONY: ginkgo
+ginkgo: $(GINKGO) ## Download ginkgo locally if necessary.
+$(GINKGO): $(LOCALBIN)
+	$(call go-install-tool,$(GINKGO),github.com/onsi/ginkgo/v2/ginkgo,$(GINKGO_VERSION))
 
 .PHONY: setup-envtest
 setup-envtest: envtest ## Download the binaries required for ENVTEST in the local bin directory.
@@ -287,7 +318,7 @@ endif
 .PHONY: bundle
 bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metadata, then validate generated files.
 	$(OPERATOR_SDK) generate kustomize manifests -q
-	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
+	cd config/operator && $(KUSTOMIZE) edit set image controller=$(IMG)
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle
 
@@ -347,8 +378,13 @@ cluster-up: ## Start a kubevirtci cluster. set KUBEVIRT_PROVIDER environment var
 
 .PHONY: cluster-sync
 cluster-sync: ## Build the controller/importer/cloner, and push it into a running cluster. The cluster must be up before running a cluster sync. Also generates a manifest and applies it to the running cluster after pushing the images to it.
-	./cluster-sync/sync.sh
+	DOCKER_REPO=$(DOCKER_REPO) IMG=$(IMG) ./cluster-sync/sync.sh
 
 .PHONY: cluster-down
 cluster-down: ## Stop the cluster, doing a make cluster-down && make cluster-up will basically restart the cluster into an empty fresh state.
 	./cluster-up/down.sh
+
+.PHONY: tools
+tools: ## Build the crd-generator and csv-generator tools.
+	go build -o bin/crd-generator tools/crd-generator/crd-generator.go
+	go build -o bin/csv-generator tools/csv-generator/csv-generator.go

@@ -28,3 +28,4 @@ go.work
 
 # kubevirtci
 _ci-configs/*
+_artifacts/*
