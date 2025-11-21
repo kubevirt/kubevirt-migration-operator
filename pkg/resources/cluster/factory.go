@@ -50,6 +50,8 @@ func createCRDResources(args *FactoryArgs) []client.Object {
 	return []client.Object{
 		createVirtualMachineStorageMigrationCRD(),
 		createVirtualMachineStorageMigrationPlanCRD(),
+		createMultinamespaceVirtualMachineStorageMigrationCRD(),
+		createMultinamespaceVirtualMachineStorageMigrationPlanCRD(),
 	}
 }
 

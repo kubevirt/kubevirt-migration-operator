@@ -52,7 +52,7 @@ var (
 )
 
 const (
-	finalizerName = "operator.migrations.kubevirt.io"
+	finalizerName = "operator.migrations.kubevirt.io/finalizer"
 
 	createVersionLabel = "operator.migrations.kubevirt.io/createVersion"
 	updateVersionLabel = "operator.migrations.kubevirt.io/updateVersion"
@@ -81,7 +81,6 @@ func NewReconciler(mgr manager.Manager) (*MigControllerReconciler, error) {
 	var namespacedArgs namespaced.FactoryArgs
 	namespace := GetNamespace("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 	restClient := mgr.GetClient()
-	// onOpenshift := util.OnOpenshift()
 	clusterArgs := &cluster.FactoryArgs{
 		Namespace: namespace,
 		Client:    restClient,
@@ -94,7 +93,6 @@ func NewReconciler(mgr manager.Manager) (*MigControllerReconciler, error) {
 	}
 
 	namespacedArgs.Namespace = namespace
-	// namespacedArgs.OnOpenshift = onOpenshift
 
 	log.Info("", "VARS", fmt.Sprintf("%+v", namespacedArgs))
 

@@ -99,6 +99,9 @@ func CreateDeployment(name, matchKey, matchValue, serviceAccountName string,
 	podSpec := corev1.PodSpec{
 		SecurityContext: &corev1.PodSecurityContext{
 			RunAsNonRoot: ptr.To(true),
+			SeccompProfile: &corev1.SeccompProfile{
+				Type: corev1.SeccompProfileTypeRuntimeDefault,
+			},
 		},
 	}
 	inpCopy := infraNodePlacement.DeepCopy()

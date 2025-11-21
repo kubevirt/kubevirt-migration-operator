@@ -19,7 +19,7 @@ COPY api/ api/
 COPY internal/ internal/
 COPY pkg/ pkg/
 COPY tools/ tools/
-
+COPY vendor/ vendor/
 # Build
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o manager cmd/main.go
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o csv-generator ./tools/csv-generator/

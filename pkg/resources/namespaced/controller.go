@@ -17,8 +17,6 @@ limitations under the License.
 package namespaced
 
 import (
-	"fmt"
-
 	secv1 "github.com/openshift/api/security/v1"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -138,6 +136,7 @@ func createControllerDeployment(controllerImage, verbosity, pullPolicy, priority
 			Protocol:      "TCP",
 		},
 	}
+	container.Args = append(container.Args, "--leader-elect", "--health-probe-bind-address=:8081")
 	labels := mergeLabels(deployment.Spec.Template.GetLabels(), map[string]string{
 		common.PrometheusLabelKey: common.PrometheusLabelValue,
 	})
@@ -150,24 +149,11 @@ func createControllerDeployment(controllerImage, verbosity, pullPolicy, priority
 	deployment.Spec.Template.Annotations[secv1.RequiredSCCAnnotation] = common.RestrictedSCCName
 	container.Env = []corev1.EnvVar{
 		{
-			Name:  "PULL_POLICY",
-			Value: pullPolicy,
-		},
-		{
-			Name: common.InstallerPartOfLabel,
+			Name: "CONTROLLER_NAMESPACE",
 			ValueFrom: &corev1.EnvVarSource{
 				FieldRef: &corev1.ObjectFieldSelector{
 					APIVersion: "v1",
-					FieldPath:  fmt.Sprintf("metadata.labels['%s']", common.AppKubernetesPartOfLabel),
-				},
-			},
-		},
-		{
-			Name: common.InstallerVersionLabel,
-			ValueFrom: &corev1.EnvVarSource{
-				FieldRef: &corev1.ObjectFieldSelector{
-					APIVersion: "v1",
-					FieldPath:  fmt.Sprintf("metadata.labels['%s']", common.AppKubernetesVersionLabel),
+					FieldPath:  "metadata.namespace",
 				},
 			},
 		},
@@ -175,20 +161,45 @@ func createControllerDeployment(controllerImage, verbosity, pullPolicy, priority
 	container.ReadinessProbe = &corev1.Probe{
 		ProbeHandler: corev1.ProbeHandler{
 			HTTPGet: &corev1.HTTPGetAction{
-				Path: "/readyz",
+				Scheme: corev1.URISchemeHTTP,
+				Path:   "/readyz",
 				Port: intstr.IntOrString{
 					Type:   intstr.Int,
 					IntVal: 8081,
 				},
 			},
 		},
+		TimeoutSeconds:      10,
+		FailureThreshold:    3,
+		SuccessThreshold:    1,
 		InitialDelaySeconds: 5,
 		PeriodSeconds:       10,
+	}
+	container.LivenessProbe = &corev1.Probe{
+		ProbeHandler: corev1.ProbeHandler{
+			HTTPGet: &corev1.HTTPGetAction{
+				Path:   "/healthz",
+				Scheme: corev1.URISchemeHTTP,
+				Port: intstr.IntOrString{
+					Type:   intstr.Int,
+					IntVal: 8081,
+				},
+			},
+		},
+		InitialDelaySeconds: 15,
+		PeriodSeconds:       20,
+		TimeoutSeconds:      10,
+		FailureThreshold:    3,
+		SuccessThreshold:    1,
 	}
 	container.Resources = corev1.ResourceRequirements{
 		Requests: corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("100m"),
-			corev1.ResourceMemory: resource.MustParse("150Mi"),
+			corev1.ResourceMemory: resource.MustParse("64Mi"),
+		},
+		Limits: corev1.ResourceList{
+			corev1.ResourceCPU:    resource.MustParse("500m"),
+			corev1.ResourceMemory: resource.MustParse("128Mi"),
 		},
 	}
 

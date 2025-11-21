@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"kubevirt.io/controller-lifecycle-operator-sdk/pkg/sdk/callbacks"
 	migrationsv1alpha1 "kubevirt.io/kubevirt-migration-operator/api/v1alpha1"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
@@ -82,8 +85,92 @@ func (r *MigControllerReconciler) configMapOwnerDeleted(cm *corev1.ConfigMap) (b
 }
 
 func (r *MigControllerReconciler) registerHooks() {
+	// Have to add these callbacks here because these are cluster scoped resources
+	// and they cannot be owned by the MigController CR, since it is a namespaced resource.
+	// TODO: supply fix to the operator-sdk that doesn't attempt to set owner references for cluster scoped resources
+	// but instead labels them with an identifier related to the CR. Then we can check the labels here to make sure
+	// we are not deleting resources that are not owned by the CR.
 	r.reconciler.
 		WithPreCreateHook(r.preCreate).
 		WithWatchRegistrator(r.watch).
 		WithSanityChecker(r.checkSanity)
+
+	r.reconciler.AddCallback(&apiextensionsv1.CustomResourceDefinition{}, r.reconcileDeleteCRDs)
+	r.reconciler.AddCallback(&rbacv1.ClusterRoleBinding{}, r.reconcileDeleteClusterRoleBinding)
+	r.reconciler.AddCallback(&rbacv1.ClusterRole{}, r.reconcileDeleteClusterRole)
+}
+
+func (r *MigControllerReconciler) reconcileDeleteClusterRoleBinding(args *callbacks.ReconcileCallbackArgs) error {
+	switch args.State {
+	case callbacks.ReconcileStatePostDelete, callbacks.ReconcileStateOperatorDelete:
+	default:
+		return nil
+	}
+
+	log.Info("Deleting Cluster Role Binding", "Cluster Role Binding", args.DesiredObject.GetName())
+	var clusterRoleBinding *rbacv1.ClusterRoleBinding
+	if args.DesiredObject != nil {
+		clusterRoleBinding = args.DesiredObject.(*rbacv1.ClusterRoleBinding)
+	} else if args.CurrentObject != nil {
+		clusterRoleBinding = args.CurrentObject.(*rbacv1.ClusterRoleBinding)
+	} else {
+		args.Logger.Info("Received cluster role binding callback with no desired/current object")
+		return nil
+	}
+
+	if err := r.Client.Delete(context.TODO(), clusterRoleBinding); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *MigControllerReconciler) reconcileDeleteClusterRole(args *callbacks.ReconcileCallbackArgs) error {
+	switch args.State {
+	case callbacks.ReconcileStatePostDelete, callbacks.ReconcileStateOperatorDelete:
+	default:
+		return nil
+	}
+
+	log.Info("Deleting Cluster Role", "Cluster Role", args.DesiredObject.GetName())
+	var clusterRole *rbacv1.ClusterRole
+	if args.DesiredObject != nil {
+		clusterRole = args.DesiredObject.(*rbacv1.ClusterRole)
+	} else if args.CurrentObject != nil {
+		clusterRole = args.CurrentObject.(*rbacv1.ClusterRole)
+	} else {
+		args.Logger.Info("Received cluster role callback with no desired/current object")
+		return nil
+	}
+
+	if err := r.Client.Delete(context.TODO(), clusterRole); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *MigControllerReconciler) reconcileDeleteCRDs(args *callbacks.ReconcileCallbackArgs) error {
+	switch args.State {
+	case callbacks.ReconcileStatePostDelete, callbacks.ReconcileStateOperatorDelete:
+	default:
+		return nil
+	}
+
+	log.Info("Deleting CRD", "CRD", args.DesiredObject.GetName())
+	var crd *apiextensionsv1.CustomResourceDefinition
+	if args.DesiredObject != nil {
+		crd = args.DesiredObject.(*apiextensionsv1.CustomResourceDefinition)
+	} else if args.CurrentObject != nil {
+		crd = args.CurrentObject.(*apiextensionsv1.CustomResourceDefinition)
+	} else {
+		args.Logger.Info("Received CRD callback with no desired/current object")
+		return nil
+	}
+
+	if err := r.Client.Delete(context.TODO(), crd); err != nil {
+		return err
+	}
+
+	return nil
 }

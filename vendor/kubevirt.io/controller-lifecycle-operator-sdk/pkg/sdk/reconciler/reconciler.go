@@ -661,7 +661,7 @@ func (r *Reconciler) CleanupUnusedResources(logger logr.Logger, cr client.Object
 				}
 			}
 
-			if !found && metav1.IsControlledBy(observedMetaObj, cr) {
+			if !found && (metav1.IsControlledBy(observedMetaObj, cr) || observedMetaObj.GetNamespace() == "") {
 				//Invoke pre delete callback
 				if err = r.InvokeCallbacks(logger, cr, callbacks.ReconcileStatePreDelete, nil, observedObj, r.recorder); err != nil {
 					r.recorder.Event(cr, corev1.EventTypeWarning, deleteResourceFailed, fmt.Sprintf("Failed deleting resource %s, %v", observedMetaObj.GetName(), err))

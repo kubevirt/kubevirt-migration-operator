@@ -165,6 +165,8 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 			Resources: []string{
 				"virtualmachinestoragemigrations",
 				"virtualmachinestoragemigrationplans",
+				"multinamespacevirtualmachinestoragemigrations",
+				"multinamespacevirtualmachinestoragemigrationplans",
 			},
 			Verbs: []string{
 				"list",
@@ -181,19 +183,10 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 				"migrations.kubevirt.io",
 			},
 			Resources: []string{
-				"virtualmachineinstancemigrations/finalizers",
-			},
-			Verbs: []string{
-				"update",
-			},
-		},
-		{
-			APIGroups: []string{
-				"migrations.kubevirt.io",
-			},
-			Resources: []string{
 				"virtualmachinestoragemigrations/status",
 				"virtualmachinestoragemigrationplans/status",
+				"multinamespacevirtualmachinestoragemigrations/status",
+				"multinamespacevirtualmachinestoragemigrationplans/status",
 			},
 			Verbs: []string{
 				"get",
@@ -231,5 +224,19 @@ func createVirtualMachineStorageMigrationCRD() *extv1.CustomResourceDefinition {
 func createVirtualMachineStorageMigrationPlanCRD() *extv1.CustomResourceDefinition {
 	crd := extv1.CustomResourceDefinition{}
 	_ = k8syaml.NewYAMLToJSONDecoder(strings.NewReader(resources.MigrationControllerCRDs["virtualmachinestoragemigrationplan"])).Decode(&crd) //nolint
+	return &crd
+}
+
+// createVirtualMachineStorageMigrationCRD creates the migmigration schema
+func createMultinamespaceVirtualMachineStorageMigrationCRD() *extv1.CustomResourceDefinition {
+	crd := extv1.CustomResourceDefinition{}
+	_ = k8syaml.NewYAMLToJSONDecoder(strings.NewReader(resources.MigrationControllerCRDs["multinamespacevirtualmachinestoragemigration"])).Decode(&crd) //nolint
+	return &crd
+}
+
+// createMultinamespaceVirtualMachineStorageMigrationPlanCRD creates the migplan schema
+func createMultinamespaceVirtualMachineStorageMigrationPlanCRD() *extv1.CustomResourceDefinition {
+	crd := extv1.CustomResourceDefinition{}
+	_ = k8syaml.NewYAMLToJSONDecoder(strings.NewReader(resources.MigrationControllerCRDs["multinamespacevirtualmachinestoragemigrationplan"])).Decode(&crd) //nolint
 	return &crd
 }

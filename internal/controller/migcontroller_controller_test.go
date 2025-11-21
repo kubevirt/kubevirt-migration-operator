@@ -63,7 +63,7 @@ var _ = Describe("MigController Controller", func() {
 				Spec: migrationsv1alpha1.MigControllerSpec{},
 			}
 			Expect(k8sClient.Create(ctx, resource)).To(Succeed())
-			recorder := record.NewFakeRecorder(10)
+			recorder := record.NewFakeRecorder(100)
 			Expect(k8sClient.Get(ctx, typeNamespacedName, migcontroller)).To(Succeed())
 			migcontroller.Status.ObservedVersion = "0.0.1"
 			Expect(k8sClient.Status().Update(ctx, migcontroller)).To(Succeed())
