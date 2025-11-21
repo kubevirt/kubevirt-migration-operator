@@ -50,7 +50,7 @@ function update_github_release() {
         config/rbac/leader_election_role.yaml \
         config/rbac/leader_election_role_binding.yaml \
         config/rbac/metrics_auth_role.yaml \
-        config/rbac/metrics_auth_role_binding.yaml \
+        config/rbac/metrics_auth_role_binding.yaml
 }
 
 function main() {
