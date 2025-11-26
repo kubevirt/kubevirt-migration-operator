@@ -18,7 +18,6 @@ package operator
 
 import (
 	"encoding/json"
-	"strings"
 
 	"github.com/coreos/go-semver/semver"
 	csvv1 "github.com/operator-framework/operator-lifecycle-manager/pkg/api/apis/operators/v1alpha1"
@@ -26,13 +25,9 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
-	extv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
-
-	"kubevirt.io/kubevirt-migration-operator/pkg/resources"
 	cluster "kubevirt.io/kubevirt-migration-operator/pkg/resources/cluster"
 	namespaced "kubevirt.io/kubevirt-migration-operator/pkg/resources/namespaced"
 	utils "kubevirt.io/kubevirt-migration-operator/pkg/resources/utils"
@@ -211,18 +206,6 @@ func getNamespacedPolicyRules() []rbacv1.PolicyRule {
 // 		),
 // 	}
 // }
-
-// func createCRD(args *FactoryArgs) []client.Object {
-// 	return []client.Object{
-// 		createMigControllerCRD(),
-// 	}
-// }
-
-func createMigControllerCRD() *extv1.CustomResourceDefinition {
-	crd := extv1.CustomResourceDefinition{}
-	_ = k8syaml.NewYAMLToJSONDecoder(strings.NewReader(resources.MigrationControllerCRDs["migcontroller"])).Decode(&crd)
-	return &crd
-}
 
 func createOperatorEnvVar(operatorVersion,
 	deployClusterResources,
