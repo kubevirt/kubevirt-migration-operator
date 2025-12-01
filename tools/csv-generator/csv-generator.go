@@ -17,6 +17,8 @@ limitations under the License.
 package main
 
 import (
+	"bytes"
+	_ "embed"
 	"encoding/json"
 	"flag"
 	"io"
@@ -44,6 +46,9 @@ var (
 	dumpCRDs        = flag.Bool("dump-crds", false, "optional - dumps migration operator related crd manifests to stdout")
 )
 
+//go:embed assets/migrations.kubevirt.io_migcontrollers.yaml
+var migControllersCRD []byte
+
 func main() {
 	flag.Parse()
 
@@ -70,8 +75,8 @@ func main() {
 	}
 
 	if *dumpCRDs {
-		migCtrlCRD := operator.NewMigControllerCrd()
-		if err = marshallObject(migCtrlCRD, os.Stdout); err != nil {
+		_, err = io.Copy(os.Stdout, bytes.NewReader(migControllersCRD))
+		if err != nil {
 			panic(err)
 		}
 	}
