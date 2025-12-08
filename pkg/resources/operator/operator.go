@@ -17,6 +17,7 @@ limitations under the License.
 package operator
 
 import (
+	_ "embed"
 	"encoding/json"
 
 	"github.com/coreos/go-semver/semver"
@@ -321,6 +322,9 @@ type csvStrategySpec struct {
 	Deployments        []csvDeployments `json:"deployments"`
 }
 
+//go:embed migControllerExample.json
+var migControllerExample string
+
 // nolint
 func createClusterServiceVersion(data *ClusterServiceVersionData) (*csvv1.ClusterServiceVersion, error) {
 	description := `
@@ -377,20 +381,8 @@ The Kubevirt Migration Controller is an extension that provides extra capabiliti
 
 				"capabilities": "Full Lifecycle",
 				"categories":   "Storage,Virtualization",
-				"alm-examples": `
-      [
-        {
-          "apiVersion":"migrations.kubevirt.io/v1alpha1",
-          "kind":"MigController",
-          "metadata": {
-            "name":"migcontroller",
-          },
-          "spec": {
-            "imagePullPolicy":"IfNotPresent"
-          }
-        }
-      ]`,
-				"description": "Creates and maintains kubevirt migration controller deployments",
+				"alm-examples": migControllerExample,
+				"description":  "Creates and maintains kubevirt migration controller deployments",
 			},
 		},
 
