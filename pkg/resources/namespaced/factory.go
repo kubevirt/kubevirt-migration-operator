@@ -19,7 +19,6 @@ package namespaced
 import (
 	"fmt"
 
-	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -87,11 +86,4 @@ func assignNamspaceIfMissing(resource client.Object, namespace string) {
 	if obj.GetNamespace() == "" {
 		obj.SetNamespace(namespace)
 	}
-}
-
-// GetRolePolicyRules returns all namespaced PolicyRules
-func GetRolePolicyRules() []rbacv1.PolicyRule {
-	result := []rbacv1.PolicyRule{}
-	result = append(result, getControllerNamespacedRules()...)
-	return result
 }
