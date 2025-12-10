@@ -52,6 +52,11 @@ var migControllersCRD []byte
 func main() {
 	flag.Parse()
 
+	rules, clusterRules, err := getRules()
+	if err != nil {
+		panic(err)
+	}
+
 	data := operator.ClusterServiceVersionData{
 		CsvVersion:         *csvVersion,
 		ReplacesCsvVersion: *replacesCsvVersion,
@@ -64,6 +69,8 @@ func main() {
 
 		ControllerImage: *controllerImage,
 		OperatorImage:   *operatorImage,
+		Rules:           rules,
+		ClusterRules:    clusterRules,
 	}
 
 	csv, err := operator.NewClusterServiceVersion(&data)
@@ -83,7 +90,7 @@ func main() {
 }
 
 // marshallObject marshalls an object to yaml appropriate for kubectl
-func marshallObject(obj interface{}, writer io.Writer) error {
+func marshallObject(obj any, writer io.Writer) error {
 	jsonBytes, err := json.Marshal(obj)
 	if err != nil {
 		return err
@@ -106,7 +113,7 @@ func marshallObject(obj interface{}, writer io.Writer) error {
 	// remove status and metadata.creationTimestamp
 	if exists {
 		for _, obj := range deployments {
-			deployment := obj.(map[string]interface{})
+			deployment := obj.(map[string]any)
 			unstructured.RemoveNestedField(deployment, "metadata", "creationTimestamp")
 			unstructured.RemoveNestedField(deployment, "spec", "template", "metadata", "creationTimestamp")
 			unstructured.RemoveNestedField(deployment, "status")

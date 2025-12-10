@@ -29,7 +29,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	cluster "kubevirt.io/kubevirt-migration-operator/pkg/resources/cluster"
 	namespaced "kubevirt.io/kubevirt-migration-operator/pkg/resources/namespaced"
 	utils "kubevirt.io/kubevirt-migration-operator/pkg/resources/utils"
 )
@@ -44,60 +43,6 @@ const (
 type FactoryArgs struct {
 	NamespacedArgs namespaced.FactoryArgs
 	Image          string
-}
-
-func getClusterPolicyRules() []rbacv1.PolicyRule {
-	rules := []rbacv1.PolicyRule{
-		{
-			APIGroups: []string{
-				"rbac.authorization.k8s.io",
-			},
-			Resources: []string{
-				"clusterrolebindings",
-				"clusterroles",
-			},
-			Verbs: []string{
-				"get",
-				"list",
-				"watch",
-				"create",
-				"update",
-				"delete",
-			},
-		},
-		{
-			APIGroups: []string{
-				"apiextensions.k8s.io",
-			},
-			Resources: []string{
-				"customresourcedefinitions",
-				"customresourcedefinitions/status",
-			},
-			Verbs: []string{
-				"get",
-				"list",
-				"watch",
-				"create",
-				"update",
-				"delete",
-			},
-		},
-		{
-			APIGroups: []string{
-				"scheduling.k8s.io",
-			},
-			Resources: []string{
-				"priorityclasses",
-			},
-			Verbs: []string{
-				"get",
-				"list",
-				"watch",
-			},
-		},
-	}
-	rules = append(rules, cluster.GetClusterRolePolicyRules()...)
-	return rules
 }
 
 // func createClusterRole() *rbacv1.ClusterRole {
@@ -115,61 +60,6 @@ func getClusterPolicyRules() []rbacv1.PolicyRule {
 // 		createClusterRoleBinding(args.NamespacedArgs.Namespace),
 // 	}
 // }
-
-func getNamespacedPolicyRules() []rbacv1.PolicyRule {
-	rules := []rbacv1.PolicyRule{
-		{
-			APIGroups: []string{
-				"rbac.authorization.k8s.io",
-			},
-			Resources: []string{
-				"rolebindings",
-				"roles",
-			},
-			Verbs: []string{
-				"get",
-				"list",
-				"watch",
-				"create",
-				"update",
-				"delete",
-			},
-		},
-		{
-			APIGroups: []string{
-				"",
-			},
-			Resources: []string{
-				"serviceaccounts",
-			},
-			Verbs: []string{
-				"list",
-				"watch",
-				"create",
-				"update",
-				"delete",
-			},
-		},
-		{
-			APIGroups: []string{
-				"apps",
-			},
-			Resources: []string{
-				"deployments",
-			},
-			Verbs: []string{
-				"get",
-				"list",
-				"watch",
-				"create",
-				"update",
-				"delete",
-			},
-		},
-	}
-	rules = append(rules, namespaced.GetRolePolicyRules()...)
-	return rules
-}
 
 // func createServiceAccount(namespace string) *corev1.ServiceAccount {
 // 	return utils.ResourceBuilder.CreateOperatorServiceAccount(serviceAccountName, namespace)
@@ -347,13 +237,13 @@ The Kubevirt Migration Controller is an extension that provides extra capabiliti
 		Permissions: []csvPermissions{
 			{
 				ServiceAccountName: serviceAccountName,
-				Rules:              getNamespacedPolicyRules(),
+				Rules:              data.Rules,
 			},
 		},
 		ClusterPermissions: []csvPermissions{
 			{
 				ServiceAccountName: serviceAccountName,
-				Rules:              getClusterPolicyRules(),
+				Rules:              data.ClusterRules,
 			},
 		},
 		Deployments: []csvDeployments{
