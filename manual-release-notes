@@ -9,3 +9,6 @@ BugFix: Fix invalid json in the CSV
 v0.0.4
 BugFix: Missing RBAC rules
 
+v0.0.5
+Dummy for v0.0.4 re-tag job
+
