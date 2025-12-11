@@ -6,3 +6,6 @@ v0.0.3
 BugFix: Fix e2e lane pushing to wrong repo
 BugFix: Fix invalid json in the CSV
 
+v0.0.4
+BugFix: Missing RBAC rules
+
