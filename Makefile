@@ -326,7 +326,15 @@ cluster-sync: ## Build the controller/importer/cloner, and push it into a runnin
 cluster-down: ## Stop the cluster, doing a make cluster-down && make cluster-up will basically restart the cluster into an empty fresh state.
 	./cluster-up/down.sh
 
-.PHONY: tools
-tools: ## Build the crd-generator and csv-generator tools.
+.PHONY: crd-generator
+crd-generator: ## Build the crd-generator tool
 	go build -o bin/crd-generator tools/crd-generator/crd-generator.go
-	go build -o bin/csv-generator tools/csv-generator/csv-generator.go
+
+.PHONY: csv-generator
+csv-generator: ## Build the csv-generator tool
+	mkdir -p tools/csv-generator/assets
+	$(KUSTOMIZE) build config/rbac > tools/csv-generator/assets/rbac.yaml
+	go build -o bin/csv-generator ./tools/csv-generator/
+
+.PHONY: tools
+tools: crd-generator csv-generator ## Build the crd-generator and csv-generator tools.
