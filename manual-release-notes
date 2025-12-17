@@ -12,3 +12,6 @@ BugFix: Missing RBAC rules
 v0.0.5
 Dummy for v0.0.4 re-tag job
 
+v0.0.6
+Dummy for testing the fix for multi arch releases
+
