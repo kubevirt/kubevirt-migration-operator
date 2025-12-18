@@ -1,5 +1,7 @@
 # Build the manager binary
-FROM quay.io/konveyor/builder:v1.23.6 AS builder
+# Force building go binaries on amd64 with cross compilation, avoid emulation
+# Target distroless remains unaffected
+FROM --platform=linux/amd64 quay.io/konveyor/builder:v1.23.6 AS builder
 ARG TARGETOS
 ARG TARGETARCH
 RUN mkdir -p /gopath
@@ -21,8 +23,8 @@ COPY pkg/ pkg/
 COPY tools/ tools/
 COPY vendor/ vendor/
 # Build
-RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o manager cmd/main.go
-RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o csv-generator ./tools/csv-generator/
+RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH:-${GOARCH}} go build -a -o manager cmd/main.go
+RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH:-${GOARCH}} go build -a -o csv-generator ./tools/csv-generator/
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details

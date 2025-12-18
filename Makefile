@@ -46,6 +46,7 @@ ifeq ($(USE_IMAGE_DIGESTS), true)
 	BUNDLE_GEN_FLAGS += --use-image-digests
 endif
 
+
 # Set the Operator SDK version to use. By default, what is installed on the system is used.
 # This is useful for CI or a project to utilize a specific version of the operator-sdk toolkit.
 OPERATOR_SDK_VERSION ?= v1.40.0
@@ -169,11 +170,11 @@ buildah-image: ## Build the image with the manager using buildah.
 
 .PHONY: buildah-manifest
 buildah-manifest: buildah-image ## Create a manifest for the image using buildah.
-	buildah manifest create $(DOCKER_REPO)/$(IMG):local
+	-buildah manifest create $(DOCKER_REPO)/$(IMG):local
 	buildah manifest add --arch $(GOARCH) $(DOCKER_REPO)/$(IMG):local containers-storage:$(DOCKER_REPO_IMAGE)
 
 .PHONY: buildah-manifest-push
-buildah-manifest-push: buildah-manifest-clean buildah-manifest ## Push the manifest for the image using buildah.
+buildah-manifest-push: ## Push the manifest for the image using buildah.
 	buildah manifest push --tls-verify=${BUILDAH_TLS_VERIFY} --all $(DOCKER_REPO)/$(IMG):local docker://$(DOCKER_REPO)/$(IMG):$(TAG)
 
 .PHONY: buildah-manifest-clean
