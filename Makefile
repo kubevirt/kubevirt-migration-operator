@@ -174,7 +174,7 @@ buildah-manifest: buildah-image ## Create a manifest for the image using buildah
 	buildah manifest add --arch $(GOARCH) $(DOCKER_REPO)/$(IMG):local containers-storage:$(DOCKER_REPO_IMAGE)
 
 .PHONY: buildah-manifest-push
-buildah-manifest-push: buildah-manifest ## Push the manifest for the image using buildah.
+buildah-manifest-push: ## Push the manifest for the image using buildah.
 	buildah manifest push --tls-verify=${BUILDAH_TLS_VERIFY} --all $(DOCKER_REPO)/$(IMG):local docker://$(DOCKER_REPO)/$(IMG):$(TAG)
 
 .PHONY: buildah-manifest-clean
