@@ -166,7 +166,7 @@ BUILDAH_TLS_VERIFY?=true
 
 .PHONY: buildah-image
 buildah-image: ## Build the image with the manager using buildah.
-	buildah build -t $(DOCKER_REPO_IMAGE) -f Dockerfile .
+	buildah build $(BUILDAH_PLATFORM_FLAG) -t $(DOCKER_REPO_IMAGE) -f Dockerfile .
 
 .PHONY: buildah-manifest
 buildah-manifest: buildah-image ## Create a manifest for the image using buildah.
