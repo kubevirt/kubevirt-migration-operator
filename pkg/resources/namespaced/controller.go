@@ -64,14 +64,11 @@ func getControllerNamespacedRules() []rbacv1.PolicyRule {
 			Resources: []string{
 				"configmaps",
 			},
+			ResourceNames: []string{
+				"migration-controller",
+			},
 			Verbs: []string{
 				"get",
-				"list",
-				"watch",
-				"create",
-				"update",
-				"delete",
-				"patch",
 			},
 		},
 		{
