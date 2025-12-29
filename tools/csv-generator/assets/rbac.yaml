@@ -289,6 +289,21 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - route.openshift.io
+  resourceNames:
+  - prometheus-k8s
+  resources:
+  - routes
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - config.openshift.io
+  resources:
+  - clusterversions
+  verbs:
+  - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

@@ -68,7 +68,8 @@ func getControllerNamespacedRules() []rbacv1.PolicyRule {
 				"migration-controller",
 			},
 			Verbs: []string{
-				"get",
+				"list",
+				"watch",
 			},
 		},
 		{
