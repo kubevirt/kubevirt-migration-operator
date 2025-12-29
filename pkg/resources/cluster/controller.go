@@ -208,6 +208,17 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 		},
 		{
 			APIGroups: []string{
+				"migrations.kubevirt.io",
+			},
+			Resources: []string{
+				"virtualmachinestoragemigrations/finalizers",
+			},
+			Verbs: []string{
+				"update",
+			},
+		},
+		{
+			APIGroups: []string{
 				"storage.k8s.io",
 			},
 			Resources: []string{
@@ -216,6 +227,33 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 			Verbs: []string{
 				"list",
 				"watch",
+			},
+		},
+		// TODO: Remove this once we swap mechanism for progress tracking
+		{
+			APIGroups: []string{
+				"route.openshift.io",
+			},
+			Resources: []string{
+				"routes",
+			},
+			ResourceNames: []string{
+				"prometheus-k8s",
+			},
+			Verbs: []string{
+				"list",
+				"watch",
+			},
+		},
+		{
+			APIGroups: []string{
+				"config.openshift.io",
+			},
+			Resources: []string{
+				"clusterversions",
+			},
+			Verbs: []string{
+				"get",
 			},
 		},
 	}
