@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	record "k8s.io/client-go/tools/record"
 	manager "sigs.k8s.io/controller-runtime/pkg/manager"
@@ -106,6 +107,7 @@ var _ = Describe("MigController Controller", func() {
 			By("Cleanup the specific resource instance MigController")
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
 		})
+
 		It("should successfully reconcile the resource", func() {
 			resource := &migrationsv1alpha1.MigController{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
@@ -119,6 +121,43 @@ var _ = Describe("MigController Controller", func() {
 			Expect(err).NotTo(HaveOccurred())
 			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
 			// Example: If you expect a certain status condition after reconciliation, verify it here.
+		})
+
+		It("should successfully create aggregated cluster role", func() {
+			resource := &migrationsv1alpha1.MigController{}
+			err := k8sClient.Get(ctx, typeNamespacedName, resource)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(resource.Status.ObservedVersion).To(Equal("0.0.1"))
+			By("Reconciling the created resource")
+			_, err = controllerReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: typeNamespacedName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			clusterRole := &rbacv1.ClusterRole{}
+			err = k8sClient.Get(ctx, types.NamespacedName{Name: "migrations.kubevirt.io:view"}, clusterRole)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(clusterRole.Rules).To(ContainElements(
+				[]rbacv1.PolicyRule{
+					{
+						APIGroups: []string{
+							"migrations.kubevirt.io",
+						},
+						Resources: []string{
+							"virtualmachinestoragemigrations",
+							"virtualmachinestoragemigrationplans",
+							"multinamespacevirtualmachinestoragemigrations",
+							"multinamespacevirtualmachinestoragemigrationplans",
+						},
+						Verbs: []string{
+							"get",
+							"list",
+							"watch",
+						},
+					},
+				},
+			))
 		})
 	})
 })
