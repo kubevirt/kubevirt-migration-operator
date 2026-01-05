@@ -212,6 +212,7 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 			},
 			Resources: []string{
 				"virtualmachinestoragemigrations/finalizers",
+				"multinamespacevirtualmachinestoragemigrations/finalizers",
 			},
 			Verbs: []string{
 				"update",
