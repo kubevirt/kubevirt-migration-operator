@@ -1039,7 +1039,7 @@ k8s.io/utils/path
 k8s.io/utils/pointer
 k8s.io/utils/ptr
 k8s.io/utils/trace
-# kubevirt.io/controller-lifecycle-operator-sdk v0.2.7
+# kubevirt.io/controller-lifecycle-operator-sdk v0.2.7 => ./staging/src/kubevirt.io/controller-lifecycle-operator-sdk
 ## explicit; go 1.22.0
 kubevirt.io/controller-lifecycle-operator-sdk/pkg/sdk
 kubevirt.io/controller-lifecycle-operator-sdk/pkg/sdk/callbacks
@@ -1133,4 +1133,5 @@ sigs.k8s.io/yaml/goyaml.v2
 # k8s.io/apimachinery => k8s.io/apimachinery v0.32.1
 # k8s.io/apiserver => k8s.io/apiserver v0.32.1
 # k8s.io/client-go => k8s.io/client-go v0.32.1
+# kubevirt.io/controller-lifecycle-operator-sdk => ./staging/src/kubevirt.io/controller-lifecycle-operator-sdk
 # kubevirt.io/controller-lifecycle-operator-sdk/api => kubevirt.io/controller-lifecycle-operator-sdk/api v0.0.0-20220329064328-f3cc58c6ed90
