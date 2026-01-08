@@ -68,7 +68,7 @@ func (r *MigControllerReconciler) configMapOwnerDeleted(cm *corev1.ConfigMap) (b
 		}
 
 		owner := &migrationsv1alpha1.MigController{}
-		if err := r.Client.Get(context.TODO(), client.ObjectKey{Name: ownerRef.Name}, owner); err != nil {
+		if err := r.Client.Get(context.TODO(), client.ObjectKey{Namespace: r.namespace, Name: ownerRef.Name}, owner); err != nil {
 			if errors.IsNotFound(err) {
 				return true, nil
 			}
