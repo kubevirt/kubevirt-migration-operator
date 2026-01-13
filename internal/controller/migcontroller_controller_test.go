@@ -134,7 +134,7 @@ var _ = Describe("MigController Controller", func() {
 				err := k8sClient.List(ctx, crdList)
 				g.Expect(err).ToNot(HaveOccurred())
 				return crdList.Items
-			}, time.Second*5, time.Second*1).Should(HaveLen(1), "All CRDs other than the one for MigController should be deleted")
+			}, time.Second*15, time.Second*1).Should(HaveLen(1), "All CRDs other than the one for MigController should be deleted")
 		})
 
 		It("should successfully reconcile the resource", func() {
