@@ -43,7 +43,7 @@ type factoryFuncMap map[string]factoryFunc
 var staticFactoryFunctions = factoryFuncMap{
 	"controller-rbac": createControllerResources,
 	"crd-resources":   createCRDResources,
-	// "aggregate-roles":  createAggregateClusterRoles,
+	"aggregate-roles": createAggregateClusterRoles,
 }
 
 func createCRDResources(args *FactoryArgs) []client.Object {

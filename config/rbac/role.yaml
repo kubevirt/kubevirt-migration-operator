@@ -22,6 +22,13 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - namespaces
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
   - pods
   verbs:
   - list
@@ -179,7 +186,9 @@ rules:
   - migrations.kubevirt.io
   resources:
   - virtualmachinestoragemigrations/finalizers
+  - virtualmachinestoragemigrationplans/finalizers
   - multinamespacevirtualmachinestoragemigrations/finalizers
+  - multinamespacevirtualmachinestoragemigrationplans/finalizers
   verbs:
   - update
 - apiGroups:
@@ -193,6 +202,21 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  resourceNames:
+  - prometheus-k8s
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - config.openshift.io
+  resources:
+  - clusterversions
+  verbs:
+  - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

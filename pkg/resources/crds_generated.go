@@ -142,7 +142,13 @@ spec:
                 description: The status of the migrations in the namespaces.
                 items:
                   properties:
+                    cancelledMigrations:
+                      description: The cancelled migrations.
+                      items:
+                        type: string
+                      type: array
                     completedMigrations:
+                      description: The completed migrations.
                       items:
                         type: string
                       type: array
@@ -179,6 +185,7 @@ spec:
                         type: object
                       type: array
                     errors:
+                      description: The errors occurred during the migration.
                       items:
                         type: string
                       type: array
@@ -186,14 +193,19 @@ spec:
                       description: The name of the namespace to migrate.
                       type: string
                     phase:
-                      description: Phase defines phase in the migration
+                      description: The current phase of the migration.
                       type: string
                     runningMigrations:
+                      description: The running migrations.
                       items:
+                        description: RunningVirtualMachineMigration has the name of
+                          the VirtualMachine and the progress of the migration.
                         properties:
                           name:
+                            description: The name of the VirtualMachine.
                             type: string
                           progress:
+                            description: The progress of the migration.
                             type: string
                         required:
                         - name
@@ -273,6 +285,8 @@ spec:
                     virtualMachines:
                       description: The virtual machines to migrate.
                       items:
+                        description: VirtualMachineStorageMigrationPlanVirtualMachine
+                          defines the VirtualMachine to migrate and the PVCs to migrate.
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
@@ -281,9 +295,14 @@ spec:
                             pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                             type: string
                           targetMigrationPVCs:
+                            description: A list of PVCs associated with the VirtualMachine
+                              to migrate.
                             items:
+                              description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                                defines the PVC to migrate to.
                               properties:
                                 destinationPVC:
+                                  description: The destination PVC to migrate to.
                                   properties:
                                     accessModes:
                                       description: The access modes to use for the
@@ -291,6 +310,10 @@ spec:
                                         be looked up from the storage class storage
                                         profile.
                                       items:
+                                        description: The access mode of the source
+                                          PVC. If set to Auto, the access mode will
+                                          be looked up from the storage class storage
+                                          profile.
                                         enum:
                                         - ReadWriteOnce
                                         - ReadOnlyMany
@@ -323,6 +346,8 @@ spec:
                                       type: string
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine
+                                    to migrate.
                                   type: string
                               required:
                               - destinationPVC
@@ -381,10 +406,14 @@ spec:
               namespaces:
                 description: The status of the plans in the namespaces.
                 items:
+                  description: VirtualMachineStorageMigrationPlanNamespaceStatus defines
+                    the status of the plan in the namespace.
                   properties:
                     completedMigrations:
                       description: The migrations that have been completed.
                       items:
+                        description: VirtualMachineStorageMigrationPlanStatusVirtualMachine
+                          defines the status of the VirtualMachine to migrate.
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
@@ -393,15 +422,20 @@ spec:
                             pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                             type: string
                           sourcePVCs:
+                            description: A list of source PVCs currently used by the
+                              VirtualMachine.
                             items:
+                              description: VirtualMachineStorageMigrationPlanSourcePVC
+                                defines the source PVC used by the VirtualMachine.
                               properties:
                                 name:
+                                  description: The name of the source PVC.
                                   type: string
                                 namespace:
+                                  description: The namespace of the source PVC.
                                   type: string
                                 sourcePVC:
-                                  description: PersistentVolumeClaim is a user's request
-                                    for and claim to a persistent volume
+                                  description: The source PVC.
                                   properties:
                                     apiVersion:
                                       description: |-
@@ -841,6 +875,7 @@ spec:
                                       type: object
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine.
                                   type: string
                               required:
                               - name
@@ -850,9 +885,14 @@ spec:
                               type: object
                             type: array
                           targetMigrationPVCs:
+                            description: A list of PVCs associated with the VirtualMachine
+                              to migrate.
                             items:
+                              description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                                defines the PVC to migrate to.
                               properties:
                                 destinationPVC:
+                                  description: The destination PVC to migrate to.
                                   properties:
                                     accessModes:
                                       description: The access modes to use for the
@@ -860,6 +900,10 @@ spec:
                                         be looked up from the storage class storage
                                         profile.
                                       items:
+                                        description: The access mode of the source
+                                          PVC. If set to Auto, the access mode will
+                                          be looked up from the storage class storage
+                                          profile.
                                         enum:
                                         - ReadWriteOnce
                                         - ReadOnlyMany
@@ -892,6 +936,8 @@ spec:
                                       type: string
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine
+                                    to migrate.
                                   type: string
                               required:
                               - destinationPVC
@@ -943,6 +989,8 @@ spec:
                     failedMigrations:
                       description: The migrations that have failed.
                       items:
+                        description: VirtualMachineStorageMigrationPlanStatusVirtualMachine
+                          defines the status of the VirtualMachine to migrate.
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
@@ -951,15 +999,20 @@ spec:
                             pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                             type: string
                           sourcePVCs:
+                            description: A list of source PVCs currently used by the
+                              VirtualMachine.
                             items:
+                              description: VirtualMachineStorageMigrationPlanSourcePVC
+                                defines the source PVC used by the VirtualMachine.
                               properties:
                                 name:
+                                  description: The name of the source PVC.
                                   type: string
                                 namespace:
+                                  description: The namespace of the source PVC.
                                   type: string
                                 sourcePVC:
-                                  description: PersistentVolumeClaim is a user's request
-                                    for and claim to a persistent volume
+                                  description: The source PVC.
                                   properties:
                                     apiVersion:
                                       description: |-
@@ -1399,6 +1452,7 @@ spec:
                                       type: object
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine.
                                   type: string
                               required:
                               - name
@@ -1408,9 +1462,14 @@ spec:
                               type: object
                             type: array
                           targetMigrationPVCs:
+                            description: A list of PVCs associated with the VirtualMachine
+                              to migrate.
                             items:
+                              description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                                defines the PVC to migrate to.
                               properties:
                                 destinationPVC:
+                                  description: The destination PVC to migrate to.
                                   properties:
                                     accessModes:
                                       description: The access modes to use for the
@@ -1418,6 +1477,10 @@ spec:
                                         be looked up from the storage class storage
                                         profile.
                                       items:
+                                        description: The access mode of the source
+                                          PVC. If set to Auto, the access mode will
+                                          be looked up from the storage class storage
+                                          profile.
                                         enum:
                                         - ReadWriteOnce
                                         - ReadOnlyMany
@@ -1450,6 +1513,8 @@ spec:
                                       type: string
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine
+                                    to migrate.
                                   type: string
                               required:
                               - destinationPVC
@@ -1466,6 +1531,8 @@ spec:
                       description: InProgress migrations are migrations that are in
                         progress.
                       items:
+                        description: VirtualMachineStorageMigrationPlanStatusVirtualMachine
+                          defines the status of the VirtualMachine to migrate.
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
@@ -1474,15 +1541,20 @@ spec:
                             pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                             type: string
                           sourcePVCs:
+                            description: A list of source PVCs currently used by the
+                              VirtualMachine.
                             items:
+                              description: VirtualMachineStorageMigrationPlanSourcePVC
+                                defines the source PVC used by the VirtualMachine.
                               properties:
                                 name:
+                                  description: The name of the source PVC.
                                   type: string
                                 namespace:
+                                  description: The namespace of the source PVC.
                                   type: string
                                 sourcePVC:
-                                  description: PersistentVolumeClaim is a user's request
-                                    for and claim to a persistent volume
+                                  description: The source PVC.
                                   properties:
                                     apiVersion:
                                       description: |-
@@ -1922,6 +1994,7 @@ spec:
                                       type: object
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine.
                                   type: string
                               required:
                               - name
@@ -1931,9 +2004,14 @@ spec:
                               type: object
                             type: array
                           targetMigrationPVCs:
+                            description: A list of PVCs associated with the VirtualMachine
+                              to migrate.
                             items:
+                              description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                                defines the PVC to migrate to.
                               properties:
                                 destinationPVC:
+                                  description: The destination PVC to migrate to.
                                   properties:
                                     accessModes:
                                       description: The access modes to use for the
@@ -1941,6 +2019,10 @@ spec:
                                         be looked up from the storage class storage
                                         profile.
                                       items:
+                                        description: The access mode of the source
+                                          PVC. If set to Auto, the access mode will
+                                          be looked up from the storage class storage
+                                          profile.
                                         enum:
                                         - ReadWriteOnce
                                         - ReadOnlyMany
@@ -1973,6 +2055,8 @@ spec:
                                       type: string
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine
+                                    to migrate.
                                   type: string
                               required:
                               - destinationPVC
@@ -1989,6 +2073,8 @@ spec:
                       description: Invalid migrations are migrations that are invalid
                         and cannot be started.
                       items:
+                        description: VirtualMachineStorageMigrationPlanStatusVirtualMachine
+                          defines the status of the VirtualMachine to migrate.
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
@@ -1997,15 +2083,20 @@ spec:
                             pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                             type: string
                           sourcePVCs:
+                            description: A list of source PVCs currently used by the
+                              VirtualMachine.
                             items:
+                              description: VirtualMachineStorageMigrationPlanSourcePVC
+                                defines the source PVC used by the VirtualMachine.
                               properties:
                                 name:
+                                  description: The name of the source PVC.
                                   type: string
                                 namespace:
+                                  description: The namespace of the source PVC.
                                   type: string
                                 sourcePVC:
-                                  description: PersistentVolumeClaim is a user's request
-                                    for and claim to a persistent volume
+                                  description: The source PVC.
                                   properties:
                                     apiVersion:
                                       description: |-
@@ -2445,6 +2536,7 @@ spec:
                                       type: object
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine.
                                   type: string
                               required:
                               - name
@@ -2454,9 +2546,14 @@ spec:
                               type: object
                             type: array
                           targetMigrationPVCs:
+                            description: A list of PVCs associated with the VirtualMachine
+                              to migrate.
                             items:
+                              description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                                defines the PVC to migrate to.
                               properties:
                                 destinationPVC:
+                                  description: The destination PVC to migrate to.
                                   properties:
                                     accessModes:
                                       description: The access modes to use for the
@@ -2464,6 +2561,10 @@ spec:
                                         be looked up from the storage class storage
                                         profile.
                                       items:
+                                        description: The access mode of the source
+                                          PVC. If set to Auto, the access mode will
+                                          be looked up from the storage class storage
+                                          profile.
                                         enum:
                                         - ReadWriteOnce
                                         - ReadOnlyMany
@@ -2496,6 +2597,8 @@ spec:
                                       type: string
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine
+                                    to migrate.
                                   type: string
                               required:
                               - destinationPVC
@@ -2515,6 +2618,8 @@ spec:
                       description: Ready migrations are migrations that are ready
                         to be started.
                       items:
+                        description: VirtualMachineStorageMigrationPlanStatusVirtualMachine
+                          defines the status of the VirtualMachine to migrate.
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
@@ -2523,15 +2628,20 @@ spec:
                             pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                             type: string
                           sourcePVCs:
+                            description: A list of source PVCs currently used by the
+                              VirtualMachine.
                             items:
+                              description: VirtualMachineStorageMigrationPlanSourcePVC
+                                defines the source PVC used by the VirtualMachine.
                               properties:
                                 name:
+                                  description: The name of the source PVC.
                                   type: string
                                 namespace:
+                                  description: The namespace of the source PVC.
                                   type: string
                                 sourcePVC:
-                                  description: PersistentVolumeClaim is a user's request
-                                    for and claim to a persistent volume
+                                  description: The source PVC.
                                   properties:
                                     apiVersion:
                                       description: |-
@@ -2971,6 +3081,7 @@ spec:
                                       type: object
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine.
                                   type: string
                               required:
                               - name
@@ -2980,9 +3091,14 @@ spec:
                               type: object
                             type: array
                           targetMigrationPVCs:
+                            description: A list of PVCs associated with the VirtualMachine
+                              to migrate.
                             items:
+                              description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                                defines the PVC to migrate to.
                               properties:
                                 destinationPVC:
+                                  description: The destination PVC to migrate to.
                                   properties:
                                     accessModes:
                                       description: The access modes to use for the
@@ -2990,6 +3106,10 @@ spec:
                                         be looked up from the storage class storage
                                         profile.
                                       items:
+                                        description: The access mode of the source
+                                          PVC. If set to Auto, the access mode will
+                                          be looked up from the storage class storage
+                                          profile.
                                         enum:
                                         - ReadWriteOnce
                                         - ReadOnlyMany
@@ -3022,6 +3142,8 @@ spec:
                                       type: string
                                   type: object
                                 volumeName:
+                                  description: The name of the volume in the VirtualMachine
+                                    to migrate.
                                   type: string
                               required:
                               - destinationPVC
@@ -3035,7 +3157,10 @@ spec:
                         type: object
                       type: array
                     suffix:
-                      description: The suffix to automatically append to the PVC name.
+                      description: The suffix to automatically append to the source
+                        PVC name. If the target name is not provided. This will replace
+                        the suffix "-new" or "-mig-xxxx" if present on the source
+                        PVC name.
                       type: string
                   required:
                   - name
@@ -3157,7 +3282,13 @@ spec:
             description: VirtualMachineStorageMigrationStatus defines the observed
               state of VirtualMachineStorageMigration
             properties:
+              cancelledMigrations:
+                description: The cancelled migrations.
+                items:
+                  type: string
+                type: array
               completedMigrations:
+                description: The completed migrations.
                 items:
                   type: string
                 type: array
@@ -3194,18 +3325,24 @@ spec:
                   type: object
                 type: array
               errors:
+                description: The errors occurred during the migration.
                 items:
                   type: string
                 type: array
               phase:
-                description: Phase defines phase in the migration
+                description: The current phase of the migration.
                 type: string
               runningMigrations:
+                description: The running migrations.
                 items:
+                  description: RunningVirtualMachineMigration has the name of the
+                    VirtualMachine and the progress of the migration.
                   properties:
                     name:
+                      description: The name of the VirtualMachine.
                       type: string
                     progress:
+                      description: The progress of the migration.
                       type: string
                   required:
                   - name
@@ -3283,6 +3420,8 @@ spec:
               virtualMachines:
                 description: The virtual machines to migrate.
                 items:
+                  description: VirtualMachineStorageMigrationPlanVirtualMachine defines
+                    the VirtualMachine to migrate and the PVCs to migrate.
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
@@ -3291,15 +3430,23 @@ spec:
                       pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                       type: string
                     targetMigrationPVCs:
+                      description: A list of PVCs associated with the VirtualMachine
+                        to migrate.
                       items:
+                        description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                          defines the PVC to migrate to.
                         properties:
                           destinationPVC:
+                            description: The destination PVC to migrate to.
                             properties:
                               accessModes:
                                 description: The access modes to use for the PVC,
                                   if set to Auto, the access mode will be looked up
                                   from the storage class storage profile.
                                 items:
+                                  description: The access mode of the source PVC.
+                                    If set to Auto, the access mode will be looked
+                                    up from the storage class storage profile.
                                   enum:
                                   - ReadWriteOnce
                                   - ReadOnlyMany
@@ -3332,6 +3479,8 @@ spec:
                                 type: string
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine
+                              to migrate.
                             type: string
                         required:
                         - destinationPVC
@@ -3353,6 +3502,8 @@ spec:
               completedMigrations:
                 description: The migrations that have been completed.
                 items:
+                  description: VirtualMachineStorageMigrationPlanStatusVirtualMachine
+                    defines the status of the VirtualMachine to migrate.
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
@@ -3361,15 +3512,19 @@ spec:
                       pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                       type: string
                     sourcePVCs:
+                      description: A list of source PVCs currently used by the VirtualMachine.
                       items:
+                        description: VirtualMachineStorageMigrationPlanSourcePVC defines
+                          the source PVC used by the VirtualMachine.
                         properties:
                           name:
+                            description: The name of the source PVC.
                             type: string
                           namespace:
+                            description: The namespace of the source PVC.
                             type: string
                           sourcePVC:
-                            description: PersistentVolumeClaim is a user's request
-                              for and claim to a persistent volume
+                            description: The source PVC.
                             properties:
                               apiVersion:
                                 description: |-
@@ -3795,6 +3950,7 @@ spec:
                                 type: object
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine.
                             type: string
                         required:
                         - name
@@ -3804,15 +3960,23 @@ spec:
                         type: object
                       type: array
                     targetMigrationPVCs:
+                      description: A list of PVCs associated with the VirtualMachine
+                        to migrate.
                       items:
+                        description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                          defines the PVC to migrate to.
                         properties:
                           destinationPVC:
+                            description: The destination PVC to migrate to.
                             properties:
                               accessModes:
                                 description: The access modes to use for the PVC,
                                   if set to Auto, the access mode will be looked up
                                   from the storage class storage profile.
                                 items:
+                                  description: The access mode of the source PVC.
+                                    If set to Auto, the access mode will be looked
+                                    up from the storage class storage profile.
                                   enum:
                                   - ReadWriteOnce
                                   - ReadOnlyMany
@@ -3845,6 +4009,8 @@ spec:
                                 type: string
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine
+                              to migrate.
                             type: string
                         required:
                         - destinationPVC
@@ -3896,6 +4062,8 @@ spec:
               failedMigrations:
                 description: The migrations that have failed.
                 items:
+                  description: VirtualMachineStorageMigrationPlanStatusVirtualMachine
+                    defines the status of the VirtualMachine to migrate.
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
@@ -3904,15 +4072,19 @@ spec:
                       pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                       type: string
                     sourcePVCs:
+                      description: A list of source PVCs currently used by the VirtualMachine.
                       items:
+                        description: VirtualMachineStorageMigrationPlanSourcePVC defines
+                          the source PVC used by the VirtualMachine.
                         properties:
                           name:
+                            description: The name of the source PVC.
                             type: string
                           namespace:
+                            description: The namespace of the source PVC.
                             type: string
                           sourcePVC:
-                            description: PersistentVolumeClaim is a user's request
-                              for and claim to a persistent volume
+                            description: The source PVC.
                             properties:
                               apiVersion:
                                 description: |-
@@ -4338,6 +4510,7 @@ spec:
                                 type: object
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine.
                             type: string
                         required:
                         - name
@@ -4347,15 +4520,23 @@ spec:
                         type: object
                       type: array
                     targetMigrationPVCs:
+                      description: A list of PVCs associated with the VirtualMachine
+                        to migrate.
                       items:
+                        description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                          defines the PVC to migrate to.
                         properties:
                           destinationPVC:
+                            description: The destination PVC to migrate to.
                             properties:
                               accessModes:
                                 description: The access modes to use for the PVC,
                                   if set to Auto, the access mode will be looked up
                                   from the storage class storage profile.
                                 items:
+                                  description: The access mode of the source PVC.
+                                    If set to Auto, the access mode will be looked
+                                    up from the storage class storage profile.
                                   enum:
                                   - ReadWriteOnce
                                   - ReadOnlyMany
@@ -4388,6 +4569,8 @@ spec:
                                 type: string
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine
+                              to migrate.
                             type: string
                         required:
                         - destinationPVC
@@ -4403,6 +4586,8 @@ spec:
               inProgressMigrations:
                 description: InProgress migrations are migrations that are in progress.
                 items:
+                  description: VirtualMachineStorageMigrationPlanStatusVirtualMachine
+                    defines the status of the VirtualMachine to migrate.
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
@@ -4411,15 +4596,19 @@ spec:
                       pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                       type: string
                     sourcePVCs:
+                      description: A list of source PVCs currently used by the VirtualMachine.
                       items:
+                        description: VirtualMachineStorageMigrationPlanSourcePVC defines
+                          the source PVC used by the VirtualMachine.
                         properties:
                           name:
+                            description: The name of the source PVC.
                             type: string
                           namespace:
+                            description: The namespace of the source PVC.
                             type: string
                           sourcePVC:
-                            description: PersistentVolumeClaim is a user's request
-                              for and claim to a persistent volume
+                            description: The source PVC.
                             properties:
                               apiVersion:
                                 description: |-
@@ -4845,6 +5034,7 @@ spec:
                                 type: object
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine.
                             type: string
                         required:
                         - name
@@ -4854,15 +5044,23 @@ spec:
                         type: object
                       type: array
                     targetMigrationPVCs:
+                      description: A list of PVCs associated with the VirtualMachine
+                        to migrate.
                       items:
+                        description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                          defines the PVC to migrate to.
                         properties:
                           destinationPVC:
+                            description: The destination PVC to migrate to.
                             properties:
                               accessModes:
                                 description: The access modes to use for the PVC,
                                   if set to Auto, the access mode will be looked up
                                   from the storage class storage profile.
                                 items:
+                                  description: The access mode of the source PVC.
+                                    If set to Auto, the access mode will be looked
+                                    up from the storage class storage profile.
                                   enum:
                                   - ReadWriteOnce
                                   - ReadOnlyMany
@@ -4895,6 +5093,8 @@ spec:
                                 type: string
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine
+                              to migrate.
                             type: string
                         required:
                         - destinationPVC
@@ -4911,6 +5111,8 @@ spec:
                 description: Invalid migrations are migrations that are invalid and
                   cannot be started.
                 items:
+                  description: VirtualMachineStorageMigrationPlanStatusVirtualMachine
+                    defines the status of the VirtualMachine to migrate.
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
@@ -4919,15 +5121,19 @@ spec:
                       pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                       type: string
                     sourcePVCs:
+                      description: A list of source PVCs currently used by the VirtualMachine.
                       items:
+                        description: VirtualMachineStorageMigrationPlanSourcePVC defines
+                          the source PVC used by the VirtualMachine.
                         properties:
                           name:
+                            description: The name of the source PVC.
                             type: string
                           namespace:
+                            description: The namespace of the source PVC.
                             type: string
                           sourcePVC:
-                            description: PersistentVolumeClaim is a user's request
-                              for and claim to a persistent volume
+                            description: The source PVC.
                             properties:
                               apiVersion:
                                 description: |-
@@ -5353,6 +5559,7 @@ spec:
                                 type: object
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine.
                             type: string
                         required:
                         - name
@@ -5362,15 +5569,23 @@ spec:
                         type: object
                       type: array
                     targetMigrationPVCs:
+                      description: A list of PVCs associated with the VirtualMachine
+                        to migrate.
                       items:
+                        description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                          defines the PVC to migrate to.
                         properties:
                           destinationPVC:
+                            description: The destination PVC to migrate to.
                             properties:
                               accessModes:
                                 description: The access modes to use for the PVC,
                                   if set to Auto, the access mode will be looked up
                                   from the storage class storage profile.
                                 items:
+                                  description: The access mode of the source PVC.
+                                    If set to Auto, the access mode will be looked
+                                    up from the storage class storage profile.
                                   enum:
                                   - ReadWriteOnce
                                   - ReadOnlyMany
@@ -5403,6 +5618,8 @@ spec:
                                 type: string
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine
+                              to migrate.
                             type: string
                         required:
                         - destinationPVC
@@ -5419,6 +5636,8 @@ spec:
                 description: Ready migrations are migrations that are ready to be
                   started.
                 items:
+                  description: VirtualMachineStorageMigrationPlanStatusVirtualMachine
+                    defines the status of the VirtualMachine to migrate.
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
@@ -5427,15 +5646,19 @@ spec:
                       pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
                       type: string
                     sourcePVCs:
+                      description: A list of source PVCs currently used by the VirtualMachine.
                       items:
+                        description: VirtualMachineStorageMigrationPlanSourcePVC defines
+                          the source PVC used by the VirtualMachine.
                         properties:
                           name:
+                            description: The name of the source PVC.
                             type: string
                           namespace:
+                            description: The namespace of the source PVC.
                             type: string
                           sourcePVC:
-                            description: PersistentVolumeClaim is a user's request
-                              for and claim to a persistent volume
+                            description: The source PVC.
                             properties:
                               apiVersion:
                                 description: |-
@@ -5861,6 +6084,7 @@ spec:
                                 type: object
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine.
                             type: string
                         required:
                         - name
@@ -5870,15 +6094,23 @@ spec:
                         type: object
                       type: array
                     targetMigrationPVCs:
+                      description: A list of PVCs associated with the VirtualMachine
+                        to migrate.
                       items:
+                        description: VirtualMachineStorageMigrationPlanTargetMigrationPVC
+                          defines the PVC to migrate to.
                         properties:
                           destinationPVC:
+                            description: The destination PVC to migrate to.
                             properties:
                               accessModes:
                                 description: The access modes to use for the PVC,
                                   if set to Auto, the access mode will be looked up
                                   from the storage class storage profile.
                                 items:
+                                  description: The access mode of the source PVC.
+                                    If set to Auto, the access mode will be looked
+                                    up from the storage class storage profile.
                                   enum:
                                   - ReadWriteOnce
                                   - ReadOnlyMany
@@ -5911,6 +6143,8 @@ spec:
                                 type: string
                             type: object
                           volumeName:
+                            description: The name of the volume in the VirtualMachine
+                              to migrate.
                             type: string
                         required:
                         - destinationPVC
@@ -5924,7 +6158,9 @@ spec:
                   type: object
                 type: array
               suffix:
-                description: The suffix to automatically append to the PVC name.
+                description: The suffix to automatically append to the source PVC
+                  name. If the target name is not provided. This will replace the
+                  suffix "-new" or "-mig-xxxx" if present on the source PVC name.
                 type: string
             type: object
         type: object

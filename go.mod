@@ -13,6 +13,7 @@ require (
 	github.com/onsi/gomega v1.38.2
 	github.com/openshift/api v0.0.0-20250730121250-4c1f9af7fc78
 	github.com/operator-framework/operator-lifecycle-manager v0.0.0-20190105193533-81104ffdc4fb
+	go.yaml.in/yaml/v3 v3.0.4
 	k8s.io/api v0.33.2
 	k8s.io/apiextensions-apiserver v0.32.1
 	k8s.io/apimachinery v0.33.2
@@ -32,6 +33,7 @@ replace (
 	k8s.io/apimachinery => k8s.io/apimachinery v0.32.1
 	k8s.io/apiserver => k8s.io/apiserver v0.32.1
 	k8s.io/client-go => k8s.io/client-go v0.32.1
+	kubevirt.io/controller-lifecycle-operator-sdk => ./staging/src/kubevirt.io/controller-lifecycle-operator-sdk
 
 	kubevirt.io/controller-lifecycle-operator-sdk/api => kubevirt.io/controller-lifecycle-operator-sdk/api v0.0.0-20220329064328-f3cc58c6ed90
 )
@@ -97,7 +99,6 @@ require (
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
