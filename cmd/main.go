@@ -41,6 +41,7 @@ import (
 
 	migrationsv1alpha1 "kubevirt.io/kubevirt-migration-operator/api/v1alpha1"
 	"kubevirt.io/kubevirt-migration-operator/internal/controller"
+	"kubevirt.io/kubevirt-migration-operator/pkg/resources/utils"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -113,6 +114,22 @@ func main() {
 	// Initial webhook TLS options
 	webhookTLSOpts := tlsOpts
 
+	managedTLSWatcher := utils.NewManagedTLSWatcher()
+	cryptoPolicyOpt := func(c *tls.Config) {
+		c.GetConfigForClient = func(t *tls.ClientHelloInfo) (*tls.Config, error) {
+			config := c.Clone()
+			if managedTLSWatcher != nil {
+				ctx := t.Context()
+				cc := managedTLSWatcher.GetTLSConfig(ctx)
+				config.CipherSuites = cc.CipherSuites
+				config.MinVersion = cc.MinVersion
+			}
+			return config, nil
+		}
+	}
+
+	webhookTLSOpts = append(webhookTLSOpts, cryptoPolicyOpt)
+
 	if len(webhookCertPath) > 0 {
 		setupLog.Info("Initializing webhook certificate watcher using provided certificates",
 			"webhook-cert-path", webhookCertPath, "webhook-cert-name", webhookCertName, "webhook-cert-key", webhookCertKey)
@@ -143,7 +160,7 @@ func main() {
 	metricsServerOptions := metricsserver.Options{
 		BindAddress:   metricsAddr,
 		SecureServing: secureMetrics,
-		TLSOpts:       tlsOpts,
+		TLSOpts:       append(tlsOpts, cryptoPolicyOpt),
 	}
 
 	if secureMetrics {
@@ -209,6 +226,12 @@ func main() {
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
+		os.Exit(1)
+	}
+
+	managedTLSWatcher.SetCache(mgr.GetCache())
+	if err := mgr.Add(managedTLSWatcher); err != nil {
+		setupLog.Error(err, "unable to add TLS watcher to manager")
 		os.Exit(1)
 	}
 
