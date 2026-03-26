@@ -1,7 +1,7 @@
 package operator
 
 import (
-	csvv1 "github.com/operator-framework/operator-lifecycle-manager/pkg/api/apis/operators/v1alpha1"
+	csvv1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	rbacv1 "k8s.io/api/rbac/v1"
 
 	corev1 "k8s.io/api/core/v1"
