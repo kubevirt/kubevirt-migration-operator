@@ -18,14 +18,14 @@ package operator
 
 import (
 	_ "embed"
-	"encoding/json"
 
-	"github.com/coreos/go-semver/semver"
-	csvv1 "github.com/operator-framework/operator-lifecycle-manager/pkg/api/apis/operators/v1alpha1"
+	blangsemver "github.com/blang/semver/v4"
+
+	"github.com/operator-framework/api/pkg/lib/version"
+	csvv1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -197,21 +197,6 @@ func createOperatorPorts() []corev1.ContainerPort {
 	}
 }
 
-type csvPermissions struct {
-	ServiceAccountName string              `json:"serviceAccountName"`
-	Rules              []rbacv1.PolicyRule `json:"rules"`
-}
-type csvDeployments struct {
-	Name string                `json:"name"`
-	Spec appsv1.DeploymentSpec `json:"spec,omitempty"`
-}
-
-type csvStrategySpec struct {
-	Permissions        []csvPermissions `json:"permissions"`
-	ClusterPermissions []csvPermissions `json:"clusterPermissions"`
-	Deployments        []csvDeployments `json:"deployments"`
-}
-
 //go:embed migControllerExample.json
 var migControllerExample string
 
@@ -233,30 +218,25 @@ The Kubevirt Migration Controller is an extension that provides extra capabiliti
 
 	deployment.Spec.Template.Spec.PriorityClassName = utils.PriorityClassDefault
 
-	strategySpec := csvStrategySpec{
-		Permissions: []csvPermissions{
+	strategySpec := csvv1.StrategyDetailsDeployment{
+		Permissions: []csvv1.StrategyDeploymentPermissions{
 			{
 				ServiceAccountName: serviceAccountName,
 				Rules:              data.Rules,
 			},
 		},
-		ClusterPermissions: []csvPermissions{
+		ClusterPermissions: []csvv1.StrategyDeploymentPermissions{
 			{
 				ServiceAccountName: serviceAccountName,
 				Rules:              data.ClusterRules,
 			},
 		},
-		Deployments: []csvDeployments{
+		DeploymentSpecs: []csvv1.StrategyDeploymentSpec{
 			{
 				Name: "kubevirt-migration-operator",
 				Spec: deployment.Spec,
 			},
 		},
-	}
-
-	strategySpecJSONBytes, err := json.Marshal(strategySpec)
-	if err != nil {
-		return nil, err
 	}
 
 	return &csvv1.ClusterServiceVersion{
@@ -280,7 +260,7 @@ The Kubevirt Migration Controller is an extension that provides extra capabiliti
 			DisplayName: "KubeVirt Migration Controller",
 			Description: description,
 			Keywords:    []string{"Virtualization", "Storage"},
-			Version:     *semver.New(data.CsvVersion),
+			Version:     version.OperatorVersion{Version: blangsemver.MustParse(data.CsvVersion)},
 			Maturity:    "alpha",
 			Replaces:    data.ReplacesCsvVersion,
 			Maintainers: []csvv1.Maintainer{{
@@ -333,8 +313,8 @@ The Kubevirt Migration Controller is an extension that provides extra capabiliti
 				},
 			},
 			InstallStrategy: csvv1.NamedInstallStrategy{
-				StrategyName:    "deployment",
-				StrategySpecRaw: json.RawMessage(strategySpecJSONBytes),
+				StrategyName: "deployment",
+				StrategySpec: strategySpec,
 			},
 			CustomResourceDefinitions: csvv1.CustomResourceDefinitions{
 
