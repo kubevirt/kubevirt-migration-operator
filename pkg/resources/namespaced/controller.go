@@ -74,6 +74,18 @@ func getControllerNamespacedRules() []rbacv1.PolicyRule {
 		},
 		{
 			APIGroups: []string{
+				"migrations.kubevirt.io",
+			},
+			Resources: []string{
+				"migcontrollers",
+			},
+			Verbs: []string{
+				"list",
+				"watch",
+			},
+		},
+		{
+			APIGroups: []string{
 				"coordination.k8s.io",
 			},
 			Resources: []string{
