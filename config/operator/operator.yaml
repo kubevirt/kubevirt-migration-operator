@@ -21,6 +21,8 @@ spec:
       labels:
         control-plane: operator
         app.kubernetes.io/name: kubevirt-migration-operator
+        prometheus.migrations.kubevirt.io: "true"
+        np.kubevirt.io/allow-access-cluster-services: "true"
     spec:
       securityContext:
         # Projects are configured by default to adhere to the "restricted" Pod Security Standards.
