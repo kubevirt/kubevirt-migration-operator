@@ -23,11 +23,13 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	sdkapi "kubevirt.io/controller-lifecycle-operator-sdk/api"
+	"kubevirt.io/controller-lifecycle-operator-sdk/pkg/sdk"
 	"kubevirt.io/kubevirt-migration-operator/pkg/common"
 	utils "kubevirt.io/kubevirt-migration-operator/pkg/resources/utils"
 )
@@ -137,12 +139,12 @@ func createControllerDeployment(controllerImage, verbosity, pullPolicy, priority
 	}
 	container.Args = append(container.Args, "--leader-elect", "--health-probe-bind-address=:8081",
 		"--metrics-bind-address=:8443")
-	labels := mergeLabels(deployment.Spec.Template.GetLabels(), map[string]string{
-		common.PrometheusLabelKey: common.PrometheusLabelValue,
-	})
-	// Add label for pod affinity
-	deployment.SetLabels(labels)
-	deployment.Spec.Template.SetLabels(labels)
+	sdk.MergeLabelsAndAnnotations(&v1.ObjectMeta{
+		Labels: map[string]string{
+			common.PrometheusLabelKey:                common.PrometheusLabelValue,
+			common.AllowAccessClusterServicesNPLabel: "true",
+		},
+	}, &deployment.Spec.Template.ObjectMeta)
 	if deployment.Spec.Template.Annotations == nil {
 		deployment.Spec.Template.Annotations = make(map[string]string)
 	}
@@ -225,19 +227,6 @@ func kubevirtCAVolume() corev1.Volume {
 			},
 		},
 	}
-}
-
-// mergeLabels copies source labels to destination (overwrites existing labels)
-func mergeLabels(src, dest map[string]string) map[string]string {
-	if dest == nil {
-		dest = map[string]string{}
-	}
-
-	for k, v := range src {
-		dest[k] = v
-	}
-
-	return dest
 }
 
 func createPrometheusService() *corev1.Service {
