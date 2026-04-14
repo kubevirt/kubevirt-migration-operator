@@ -223,6 +223,18 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 		},
 		{
 			APIGroups: []string{
+				"migrations.kubevirt.io",
+			},
+			Resources: []string{
+				"migcontrollers",
+			},
+			Verbs: []string{
+				"list",
+				"watch",
+			},
+		},
+		{
+			APIGroups: []string{
 				"storage.k8s.io",
 			},
 			Resources: []string{
