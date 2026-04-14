@@ -31,7 +31,10 @@ import (
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	sdkapi "kubevirt.io/controller-lifecycle-operator-sdk/api"
+	migrationsv1alpha1 "kubevirt.io/kubevirt-migration-operator/api/v1alpha1"
 	"kubevirt.io/kubevirt-migration-operator/test/utils"
+	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // serviceAccountName created for the project
@@ -124,6 +127,43 @@ var _ = Describe("Manager", Ordered, func() {
 				g.Expect(pods.Items[0].Status.Phase).To(Equal(corev1.PodRunning), "Incorrect operator pod status")
 			}
 			Eventually(verifyControllerUp).Should(Succeed())
+		})
+
+		It("should have the MigController CR ready", func() {
+			By("waiting for the MigController CR to be deployed")
+			verifyMigControllerReady := func(g Gomega) {
+				migControllerList := &migrationsv1alpha1.MigControllerList{}
+				g.Expect(crClient.List(context.TODO(), migControllerList,
+					crclient.InNamespace(*migrationOperatorNamespace))).To(Succeed())
+				g.Expect(migControllerList.Items).NotTo(BeEmpty(), "expected at least 1 MigController CR")
+				g.Expect(migControllerList.Items[0].Status.Phase).To(
+					Equal(sdkapi.PhaseDeployed), "MigController CR is not ready")
+			}
+			Eventually(verifyMigControllerReady).Should(Succeed())
+
+			By("verifying the migration controller pod is running and ready with zero restarts")
+			pods, err := kcs.CoreV1().Pods(*migrationOperatorNamespace).List(context.TODO(), metav1.ListOptions{
+				LabelSelector: "app=kubevirt-migration-controller",
+			})
+			Expect(err).NotTo(HaveOccurred(), "Failed to list migration controller pods")
+			Expect(pods.Items).NotTo(BeEmpty(), "expected at least 1 migration controller pod")
+			for _, pod := range pods.Items {
+				Expect(pod.Status.Phase).To(Equal(corev1.PodRunning),
+					fmt.Sprintf("pod %s is in phase %s, expected Running", pod.Name, pod.Status.Phase))
+
+				for _, cond := range pod.Status.Conditions {
+					if cond.Type == corev1.PodReady {
+						Expect(cond.Status).To(Equal(corev1.ConditionTrue),
+							fmt.Sprintf("pod %s Ready condition is %s, expected True", pod.Name, cond.Status))
+					}
+				}
+
+				for _, cs := range pod.Status.ContainerStatuses {
+					Expect(cs.RestartCount).To(BeZero(),
+						fmt.Sprintf("container %s in pod %s has %d restarts",
+							cs.Name, pod.Name, cs.RestartCount))
+				}
+			}
 		})
 
 		It("should ensure the metrics endpoint is serving metrics", func() {

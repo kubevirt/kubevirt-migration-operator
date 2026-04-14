@@ -33,3 +33,14 @@ if [[ "$KUBEVIRT_PROVIDER" != "external" ]]; then
   _kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml
   _kubectl wait deployment.apps/cert-manager-webhook --for condition=Available --namespace cert-manager --timeout 5m
 fi
+
+# Create a MigController CR
+_kubectl apply -f - <<EOF
+apiVersion: migrations.kubevirt.io/v1alpha1
+kind: MigController
+metadata:
+  name: migcontroller
+  namespace: kubevirt
+spec:
+  imagePullPolicy: Always
+EOF
