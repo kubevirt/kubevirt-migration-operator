@@ -25,9 +25,12 @@ import (
 	. "github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
+	k8sscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	migrationsv1alpha1 "kubevirt.io/kubevirt-migration-operator/api/v1alpha1"
 	"kubevirt.io/kubevirt-migration-operator/test/utils"
 )
 
@@ -36,8 +39,9 @@ var (
 	kubeConfig                 = flag.String("test-kubeconfig", "", "Path to the kubeconfig file")
 	migrationOperatorNamespace = flag.String("migration-operator-namespace", "kubevirt",
 		"Namespace of the migration operator")
-	kubeURL = flag.String("kubeurl", "", "URL of the kube API server")
-	kcs     *kubernetes.Clientset
+	kubeURL  = flag.String("kubeurl", "", "URL of the kube API server")
+	kcs      *kubernetes.Clientset
+	crClient crclient.Client
 )
 
 // TestE2E runs the end-to-end (e2e) test suite for the project. These tests execute in an isolated,
@@ -77,6 +81,11 @@ func BuildTestSuite() {
 		kcs, err = GetKubeClientFromRESTConfig(restConfig)
 		Expect(err).ToNot(HaveOccurred(), "Unable to create K8SClient")
 		Expect(kcs).ToNot(BeNil(), "K8SClient is nil")
+
+		err = migrationsv1alpha1.AddToScheme(k8sscheme.Scheme)
+		Expect(err).ToNot(HaveOccurred(), "Unable to add migrations scheme")
+		crClient, err = crclient.New(restConfig, crclient.Options{Scheme: k8sscheme.Scheme})
+		Expect(err).ToNot(HaveOccurred(), "Unable to create controller-runtime client")
 
 	})
 }
