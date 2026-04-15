@@ -134,7 +134,8 @@ func createControllerDeployment(controllerImage, verbosity, pullPolicy, priority
 			Protocol:      "TCP",
 		},
 	}
-	container.Args = append(container.Args, "--leader-elect", "--health-probe-bind-address=:8081")
+	container.Args = append(container.Args, "--leader-elect", "--health-probe-bind-address=:8081",
+		"--metrics-bind-address=:8443")
 	labels := mergeLabels(deployment.Spec.Template.GetLabels(), map[string]string{
 		common.PrometheusLabelKey: common.PrometheusLabelValue,
 	})
