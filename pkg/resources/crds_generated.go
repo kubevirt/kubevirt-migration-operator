@@ -293,7 +293,7 @@ spec:
                       - deleteSource
                       type: string
                       x-kubernetes-validations:
-                      - message: retentionPolicy is immutable
+                      - message: retentionPolicy value cannot be changed once set
                         rule: self == oldSelf
                     virtualMachines:
                       description: The virtual machines to migrate.
@@ -372,10 +372,16 @@ spec:
                         - targetMigrationPVCs
                         type: object
                       type: array
+                      x-kubernetes-list-map-keys:
+                      - name
+                      x-kubernetes-list-type: map
                   required:
                   - name
                   - virtualMachines
                   type: object
+                  x-kubernetes-validations:
+                  - message: retentionPolicy cannot be removed once set
+                    rule: '!has(oldSelf.retentionPolicy) || has(self.retentionPolicy)'
                 type: array
                 x-kubernetes-list-map-keys:
                 - name
@@ -392,11 +398,14 @@ spec:
                 - deleteSource
                 type: string
                 x-kubernetes-validations:
-                - message: retentionPolicy is immutable
+                - message: retentionPolicy value cannot be changed once set
                   rule: self == oldSelf
             required:
             - namespaces
             type: object
+            x-kubernetes-validations:
+            - message: retentionPolicy cannot be removed once set
+              rule: '!has(oldSelf.retentionPolicy) || has(self.retentionPolicy)'
           status:
             description: MultiNamespaceVirtualMachineStorageMigrationPlanStatus defines
               the observed state of MultiNamespaceVirtualMachineStorageMigrationPlan
@@ -3458,7 +3467,7 @@ spec:
                 - deleteSource
                 type: string
                 x-kubernetes-validations:
-                - message: retentionPolicy is immutable
+                - message: retentionPolicy value cannot be changed once set
                   rule: self == oldSelf
               virtualMachines:
                 description: The virtual machines to migrate.
@@ -3535,9 +3544,15 @@ spec:
                   - targetMigrationPVCs
                   type: object
                 type: array
+                x-kubernetes-list-map-keys:
+                - name
+                x-kubernetes-list-type: map
             required:
             - virtualMachines
             type: object
+            x-kubernetes-validations:
+            - message: retentionPolicy cannot be removed once set
+              rule: '!has(oldSelf.retentionPolicy) || has(self.retentionPolicy)'
           status:
             description: VirtualMachineStorageMigrationPlanStatus defines the observed
               state of VirtualMachineStorageMigrationPlan
