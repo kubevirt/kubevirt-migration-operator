@@ -50,6 +50,10 @@ var factoryFunctions = map[string]factoryFunc{
 	"controller": createControllerResources,
 }
 
+var additionalFactoryFunctions = map[string]factoryFunc{
+	"networkpolicies": createNetworkPolicies,
+}
+
 // CreateAllResources creates all namespaced resources
 func CreateAllResources(args *FactoryArgs) ([]client.Object, error) {
 	var resources []client.Object
@@ -65,7 +69,7 @@ func CreateAllResources(args *FactoryArgs) ([]client.Object, error) {
 
 // CreateResourceGroup creates namespaced resources for a specific group/component
 func CreateResourceGroup(group string, args *FactoryArgs) ([]client.Object, error) {
-	f, ok := factoryFunctions[group]
+	f, ok := getFactoryFunc(group)
 	if !ok {
 		return nil, fmt.Errorf("group %s does not exist", group)
 	}
@@ -75,6 +79,14 @@ func CreateResourceGroup(group string, args *FactoryArgs) ([]client.Object, erro
 		assignNamspaceIfMissing(resource, args.Namespace)
 	}
 	return resources, nil
+}
+
+func getFactoryFunc(group string) (factoryFunc, bool) {
+	if f, ok := factoryFunctions[group]; ok {
+		return f, true
+	}
+	f, ok := additionalFactoryFunctions[group]
+	return f, ok
 }
 
 func assignNamspaceIfMissing(resource client.Object, namespace string) {
