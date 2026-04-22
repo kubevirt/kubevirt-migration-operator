@@ -24,6 +24,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	sdkapi "kubevirt.io/controller-lifecycle-operator-sdk/api"
@@ -197,8 +198,32 @@ func createControllerDeployment(controllerImage, verbosity, pullPolicy, priority
 		},
 	}
 
+	// Mount the kubevirt CA certificate so the controller can access metrics from virt-handler pods
+	container.VolumeMounts = []corev1.VolumeMount{
+		{
+			Name:      "kubevirt-ca-configmap",
+			MountPath: "/etc/ssl/certs/kubevirt-ca",
+			ReadOnly:  true,
+		},
+	}
+
 	deployment.Spec.Template.Spec.Containers = []corev1.Container{container}
+	// Ensure the controller has access to the Kubevirt CA certificate, this is needed so the controller
+	// can get metrics from the virt-handler pods.
+	deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, kubevirtCAVolume())
+	deployment.Spec.Template.Spec.TerminationGracePeriodSeconds = ptr.To[int64](10)
 	return deployment
+}
+
+func kubevirtCAVolume() corev1.Volume {
+	return corev1.Volume{
+		Name: "kubevirt-ca-configmap",
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{Name: "kubevirt-ca"},
+			},
+		},
+	}
 }
 
 // mergeLabels copies source labels to destination (overwrites existing labels)
