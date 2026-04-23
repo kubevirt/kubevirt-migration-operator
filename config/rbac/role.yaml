@@ -258,3 +258,11 @@ rules:
   - list
   - update
   - watch
+- apiGroups:
+  - migrations.kubevirt.io
+  resources:
+  - migrationcontrollers
+  verbs:
+  - get
+  - list
+  - watch
