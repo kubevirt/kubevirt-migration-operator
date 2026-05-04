@@ -303,9 +303,9 @@ spec:
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
-                            maxLength: 63
+                            maxLength: 253
                             minLength: 1
-                            pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                            pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                             type: string
                           targetMigrationPVCs:
                             description: A list of PVCs associated with the VirtualMachine
@@ -338,9 +338,9 @@ spec:
                                       description: The name of the destination PVC.
                                         If not provided, the PVC will be named after
                                         the source PVC with a "-mig-xxxx" suffix.
-                                      maxLength: 63
+                                      maxLength: 253
                                       minLength: 1
-                                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                       type: string
                                     storageClassName:
                                       description: The target storage class to use
@@ -456,9 +456,9 @@ spec:
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
-                            maxLength: 63
+                            maxLength: 253
                             minLength: 1
-                            pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                            pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                             type: string
                           sourcePVCs:
                             description: A list of source PVCs currently used by the
@@ -954,9 +954,9 @@ spec:
                                       description: The name of the destination PVC.
                                         If not provided, the PVC will be named after
                                         the source PVC with a "-mig-xxxx" suffix.
-                                      maxLength: 63
+                                      maxLength: 253
                                       minLength: 1
-                                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                       type: string
                                     storageClassName:
                                       description: The target storage class to use
@@ -1033,9 +1033,9 @@ spec:
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
-                            maxLength: 63
+                            maxLength: 253
                             minLength: 1
-                            pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                            pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                             type: string
                           sourcePVCs:
                             description: A list of source PVCs currently used by the
@@ -1531,9 +1531,9 @@ spec:
                                       description: The name of the destination PVC.
                                         If not provided, the PVC will be named after
                                         the source PVC with a "-mig-xxxx" suffix.
-                                      maxLength: 63
+                                      maxLength: 253
                                       minLength: 1
-                                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                       type: string
                                     storageClassName:
                                       description: The target storage class to use
@@ -1575,9 +1575,9 @@ spec:
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
-                            maxLength: 63
+                            maxLength: 253
                             minLength: 1
-                            pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                            pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                             type: string
                           sourcePVCs:
                             description: A list of source PVCs currently used by the
@@ -2073,9 +2073,9 @@ spec:
                                       description: The name of the destination PVC.
                                         If not provided, the PVC will be named after
                                         the source PVC with a "-mig-xxxx" suffix.
-                                      maxLength: 63
+                                      maxLength: 253
                                       minLength: 1
-                                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                       type: string
                                     storageClassName:
                                       description: The target storage class to use
@@ -2117,9 +2117,9 @@ spec:
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
-                            maxLength: 63
+                            maxLength: 253
                             minLength: 1
-                            pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                            pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                             type: string
                           sourcePVCs:
                             description: A list of source PVCs currently used by the
@@ -2615,9 +2615,9 @@ spec:
                                       description: The name of the destination PVC.
                                         If not provided, the PVC will be named after
                                         the source PVC with a "-mig-xxxx" suffix.
-                                      maxLength: 63
+                                      maxLength: 253
                                       minLength: 1
-                                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                       type: string
                                     storageClassName:
                                       description: The target storage class to use
@@ -2662,9 +2662,9 @@ spec:
                         properties:
                           name:
                             description: The name of the virtual machine to migrate.
-                            maxLength: 63
+                            maxLength: 253
                             minLength: 1
-                            pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                            pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                             type: string
                           sourcePVCs:
                             description: A list of source PVCs currently used by the
@@ -3160,9 +3160,9 @@ spec:
                                       description: The name of the destination PVC.
                                         If not provided, the PVC will be named after
                                         the source PVC with a "-mig-xxxx" suffix.
-                                      maxLength: 63
+                                      maxLength: 253
                                       minLength: 1
-                                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                       type: string
                                     storageClassName:
                                       description: The target storage class to use
@@ -3477,9 +3477,9 @@ spec:
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
-                      maxLength: 63
+                      maxLength: 253
                       minLength: 1
-                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                       type: string
                     targetMigrationPVCs:
                       description: A list of PVCs associated with the VirtualMachine
@@ -3510,9 +3510,9 @@ spec:
                                 description: The name of the destination PVC. If not
                                   provided, the PVC will be named after the source
                                   PVC with a "-mig-xxxx" suffix.
-                                maxLength: 63
+                                maxLength: 253
                                 minLength: 1
-                                pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                 type: string
                               storageClassName:
                                 description: The target storage class to use for the
@@ -3565,9 +3565,9 @@ spec:
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
-                      maxLength: 63
+                      maxLength: 253
                       minLength: 1
-                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                       type: string
                     sourcePVCs:
                       description: A list of source PVCs currently used by the VirtualMachine.
@@ -4046,9 +4046,9 @@ spec:
                                 description: The name of the destination PVC. If not
                                   provided, the PVC will be named after the source
                                   PVC with a "-mig-xxxx" suffix.
-                                maxLength: 63
+                                maxLength: 253
                                 minLength: 1
-                                pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                 type: string
                               storageClassName:
                                 description: The target storage class to use for the
@@ -4125,9 +4125,9 @@ spec:
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
-                      maxLength: 63
+                      maxLength: 253
                       minLength: 1
-                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                       type: string
                     sourcePVCs:
                       description: A list of source PVCs currently used by the VirtualMachine.
@@ -4606,9 +4606,9 @@ spec:
                                 description: The name of the destination PVC. If not
                                   provided, the PVC will be named after the source
                                   PVC with a "-mig-xxxx" suffix.
-                                maxLength: 63
+                                maxLength: 253
                                 minLength: 1
-                                pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                 type: string
                               storageClassName:
                                 description: The target storage class to use for the
@@ -4649,9 +4649,9 @@ spec:
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
-                      maxLength: 63
+                      maxLength: 253
                       minLength: 1
-                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                       type: string
                     sourcePVCs:
                       description: A list of source PVCs currently used by the VirtualMachine.
@@ -5130,9 +5130,9 @@ spec:
                                 description: The name of the destination PVC. If not
                                   provided, the PVC will be named after the source
                                   PVC with a "-mig-xxxx" suffix.
-                                maxLength: 63
+                                maxLength: 253
                                 minLength: 1
-                                pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                 type: string
                               storageClassName:
                                 description: The target storage class to use for the
@@ -5174,9 +5174,9 @@ spec:
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
-                      maxLength: 63
+                      maxLength: 253
                       minLength: 1
-                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                       type: string
                     sourcePVCs:
                       description: A list of source PVCs currently used by the VirtualMachine.
@@ -5655,9 +5655,9 @@ spec:
                                 description: The name of the destination PVC. If not
                                   provided, the PVC will be named after the source
                                   PVC with a "-mig-xxxx" suffix.
-                                maxLength: 63
+                                maxLength: 253
                                 minLength: 1
-                                pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                 type: string
                               storageClassName:
                                 description: The target storage class to use for the
@@ -5699,9 +5699,9 @@ spec:
                   properties:
                     name:
                       description: The name of the virtual machine to migrate.
-                      maxLength: 63
+                      maxLength: 253
                       minLength: 1
-                      pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                       type: string
                     sourcePVCs:
                       description: A list of source PVCs currently used by the VirtualMachine.
@@ -6180,9 +6180,9 @@ spec:
                                 description: The name of the destination PVC. If not
                                   provided, the PVC will be named after the source
                                   PVC with a "-mig-xxxx" suffix.
-                                maxLength: 63
+                                maxLength: 253
                                 minLength: 1
-                                pattern: ^[a-z]([-a-z0-9]*[a-z0-9])?$
+                                pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                 type: string
                               storageClassName:
                                 description: The target storage class to use for the
