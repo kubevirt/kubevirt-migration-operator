@@ -178,6 +178,7 @@ func createOperatorDeployment(operatorVersion, namespace, deployClusterResources
 	}
 	container.Env = createOperatorEnvVar(operatorVersion, deployClusterResources, operatorImage, controllerImage,
 		verbosity, pullPolicy)
+	container.Args = append(container.Args, "--metrics-bind-address=:8443")
 	deployment.Spec.Template.Spec.Containers = []corev1.Container{container}
 	return deployment
 }
