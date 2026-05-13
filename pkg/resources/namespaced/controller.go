@@ -222,6 +222,7 @@ func kubevirtCAVolume() corev1.Volume {
 		VolumeSource: corev1.VolumeSource{
 			ConfigMap: &corev1.ConfigMapVolumeSource{
 				LocalObjectReference: corev1.LocalObjectReference{Name: "kubevirt-ca"},
+				DefaultMode:          ptr.To(corev1.ConfigMapVolumeSourceDefaultMode),
 			},
 		},
 	}

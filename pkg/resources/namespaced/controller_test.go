@@ -62,6 +62,7 @@ var _ = Describe("Controller Deployment", func() {
 			Expect(caVolume).NotTo(BeNil(), "kubevirt-ca-configmap volume should be present")
 			Expect(caVolume.VolumeSource.ConfigMap).NotTo(BeNil(), "volume should be backed by a ConfigMap")
 			Expect(caVolume.VolumeSource.ConfigMap.Name).To(Equal("kubevirt-ca"), "ConfigMap name should be kubevirt-ca")
+			Expect(caVolume.VolumeSource.ConfigMap.DefaultMode).To(HaveValue(Equal(corev1.ConfigMapVolumeSourceDefaultMode)))
 
 			// Verify volumeMount on container
 			Expect(container.VolumeMounts).To(HaveLen(1))
