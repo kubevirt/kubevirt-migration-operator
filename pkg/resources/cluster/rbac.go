@@ -33,9 +33,26 @@ func createAggregateClusterRoles(_ *FactoryArgs) []client.Object {
 }
 
 func getAdminPolicyRules() []rbacv1.PolicyRule {
-	// leaving this here so we have optionality in the future for other resources
-	// currently we follow the kubevirt model where only admin can migrate
-	return []rbacv1.PolicyRule{}
+	return []rbacv1.PolicyRule{
+		{
+			APIGroups: []string{
+				"migrations.kubevirt.io",
+			},
+			Resources: []string{
+				"virtualmachinestoragemigrations",
+				"virtualmachinestoragemigrationplans",
+			},
+			Verbs: []string{
+				"get",
+				"list",
+				"watch",
+				"create",
+				"update",
+				"delete",
+				"patch",
+			},
+		},
+	}
 }
 
 func getEditPolicyRules() []rbacv1.PolicyRule {

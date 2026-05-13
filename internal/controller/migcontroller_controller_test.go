@@ -153,7 +153,7 @@ var _ = Describe("MigController Controller", func() {
 			// Example: If you expect a certain status condition after reconciliation, verify it here.
 		})
 
-		It("should successfully create aggregated cluster role", func() {
+		DescribeTable("check all expected aggregated cluster role rules exist", func(role string, rules []rbacv1.PolicyRule) {
 			resource := &migrationsv1alpha1.MigController{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
@@ -165,11 +165,55 @@ var _ = Describe("MigController Controller", func() {
 			})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(res).To(Equal(defaultResult))
-
 			clusterRole := &rbacv1.ClusterRole{}
-			err = k8sClient.Get(ctx, types.NamespacedName{Name: "migrations.kubevirt.io:view"}, clusterRole)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(clusterRole.Rules).To(ContainElements(
+			err = k8sClient.Get(ctx, types.NamespacedName{Name: fmt.Sprintf("migrations.kubevirt.io:%s", role)}, clusterRole)
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(clusterRole.Rules).To(ContainElements(rules))
+		},
+			Entry("for admin", "admin",
+				[]rbacv1.PolicyRule{
+					{
+						APIGroups: []string{
+							"migrations.kubevirt.io",
+						},
+						Resources: []string{
+							"virtualmachinestoragemigrations",
+							"virtualmachinestoragemigrationplans",
+						},
+						Verbs: []string{
+							"get",
+							"list",
+							"watch",
+							"create",
+							"update",
+							"delete",
+							"patch",
+						},
+					},
+				}),
+			Entry("for edit", "edit",
+				[]rbacv1.PolicyRule{
+					{
+						APIGroups: []string{
+							"migrations.kubevirt.io",
+						},
+						Resources: []string{
+							"virtualmachinestoragemigrations",
+							"virtualmachinestoragemigrationplans",
+						},
+						Verbs: []string{
+							"get",
+							"list",
+							"watch",
+							"create",
+							"update",
+							"delete",
+							"patch",
+						},
+					},
+				}),
+			Entry("for view", "view",
 				[]rbacv1.PolicyRule{
 					{
 						APIGroups: []string{
@@ -187,9 +231,8 @@ var _ = Describe("MigController Controller", func() {
 							"watch",
 						},
 					},
-				},
-			))
-		})
+				}),
+		)
 	})
 })
 
