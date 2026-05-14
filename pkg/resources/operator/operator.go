@@ -29,6 +29,10 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+<<<<<<< HEAD
+=======
+	cluster "kubevirt.io/kubevirt-migration-operator/pkg/resources/cluster"
+>>>>>>> 9b59ba2 (Remove redundant functions)
 	namespaced "kubevirt.io/kubevirt-migration-operator/pkg/resources/namespaced"
 	utils "kubevirt.io/kubevirt-migration-operator/pkg/resources/utils"
 )
