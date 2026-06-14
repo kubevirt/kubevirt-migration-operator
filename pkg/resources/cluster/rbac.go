@@ -32,6 +32,15 @@ func createAggregateClusterRoles(_ *FactoryArgs) []client.Object {
 	}
 }
 
+func createStorageMigrationClusterRoles(_ *FactoryArgs) []client.Object {
+	return []client.Object{
+		utils.ResourceBuilder.CreateClusterRole(
+			"migrations.kubevirt.io:storagemigrate", getStorageMigratePolicyRules()),
+		utils.ResourceBuilder.CreateClusterRole(
+			"migrations.kubevirt.io:storagemigrate-multins", getStorageMigrateMultinsPolicyRules()),
+	}
+}
+
 func getAdminPolicyRules() []rbacv1.PolicyRule {
 	// leaving this here so we have optionality in the future for other resources
 	// currently we follow the kubevirt model where only admin can migrate
@@ -59,6 +68,56 @@ func getViewPolicyRules() []rbacv1.PolicyRule {
 				"get",
 				"list",
 				"watch",
+			},
+		},
+	}
+}
+
+func getStorageMigratePolicyRules() []rbacv1.PolicyRule {
+	return []rbacv1.PolicyRule{
+		{
+			APIGroups: []string{
+				"migrations.kubevirt.io",
+			},
+			Resources: []string{
+				"virtualmachinestoragemigrations",
+				"virtualmachinestoragemigrationplans",
+			},
+			Verbs: []string{
+				"get",
+				"list",
+				"watch",
+				"create",
+				"update",
+				"patch",
+				"delete",
+				"deletecollection",
+			},
+		},
+	}
+}
+
+func getStorageMigrateMultinsPolicyRules() []rbacv1.PolicyRule {
+	return []rbacv1.PolicyRule{
+		{
+			APIGroups: []string{
+				"migrations.kubevirt.io",
+			},
+			Resources: []string{
+				"virtualmachinestoragemigrations",
+				"virtualmachinestoragemigrationplans",
+				"multinamespacevirtualmachinestoragemigrations",
+				"multinamespacevirtualmachinestoragemigrationplans",
+			},
+			Verbs: []string{
+				"get",
+				"list",
+				"watch",
+				"create",
+				"update",
+				"patch",
+				"delete",
+				"deletecollection",
 			},
 		},
 	}
