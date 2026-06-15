@@ -21,8 +21,11 @@ type ClusterServiceVersionData struct {
 
 	ControllerImage string
 	OperatorImage   string
+<<<<<<< HEAD
 	Rules           []rbacv1.PolicyRule
 	ClusterRules    []rbacv1.PolicyRule
+=======
+>>>>>>> 9b59ba2 (Remove redundant functions)
 }
 
 // NewClusterServiceVersion - generates CSV for CDI
