@@ -25,6 +25,7 @@ import (
 	secv1 "github.com/openshift/api/security/v1"
 
 	sdkapi "kubevirt.io/controller-lifecycle-operator-sdk/api"
+	"kubevirt.io/controller-lifecycle-operator-sdk/pkg/sdk"
 	utils "kubevirt.io/controller-lifecycle-operator-sdk/pkg/sdk/resources"
 	"kubevirt.io/kubevirt-migration-operator/pkg/common"
 )
@@ -145,10 +146,12 @@ func CreateOperatorDeployment(name, namespace, matchKey, matchValue, serviceAcco
 	}
 	deployment := ResourceBuilder.CreateOperatorDeployment(name, namespace, matchKey,
 		matchValue, serviceAccount, numReplicas, podSpec)
-	// labels := util.MergeLabels(deployment.Spec.Template.GetLabels(), map[string]string{PrometheusLabelKey:
-	//  PrometheusLabelValue, CDIComponentLabel: CDIOperatorName})
-	// deployment.SetLabels(labels)
-	// deployment.Spec.Template.SetLabels(labels)
+	sdk.MergeLabelsAndAnnotations(&metav1.ObjectMeta{
+		Labels: map[string]string{
+			common.PrometheusLabelKey:                common.PrometheusLabelValue,
+			common.AllowAccessClusterServicesNPLabel: common.AllowAccessClusterServicesNPLabel,
+		},
+	}, &deployment.Spec.Template.ObjectMeta)
 	if deployment.Spec.Template.Annotations == nil {
 		deployment.Spec.Template.Annotations = make(map[string]string)
 	}

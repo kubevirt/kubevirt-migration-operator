@@ -27,6 +27,7 @@ import (
 
 	"github.com/ghodss/yaml"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"kubevirt.io/kubevirt-migration-operator/pkg/resources/namespaced"
 	operator "kubevirt.io/kubevirt-migration-operator/pkg/resources/operator"
 )
 
@@ -43,7 +44,10 @@ var (
 
 	operatorImage   = flag.String("operator-image", "", "")
 	controllerImage = flag.String("controller-image", "", "")
-	dumpCRDs        = flag.Bool("dump-crds", false, "optional - dumps migration operator related crd manifests to stdout")
+	dumpCRDs        = flag.Bool("dump-crds", false,
+		"optional - dumps migration operator related crd manifests to stdout")
+	dumpNetworkPolicies = flag.Bool("dump-network-policies", false,
+		"optional - dumps migration operator related network policies")
 )
 
 //go:embed assets/migrations.kubevirt.io_migcontrollers.yaml
@@ -85,6 +89,20 @@ func main() {
 		_, err = io.Copy(os.Stdout, bytes.NewReader(migControllersCRD))
 		if err != nil {
 			panic(err)
+		}
+	}
+
+	if *dumpNetworkPolicies {
+		cdiNps, err := namespaced.CreateResourceGroup("networkpolicies", &namespaced.FactoryArgs{
+			Namespace: *namespace,
+		})
+		if err != nil {
+			panic(err)
+		}
+		for _, np := range cdiNps {
+			if err = marshallObject(np, os.Stdout); err != nil {
+				panic(err)
+			}
 		}
 	}
 }

@@ -7,13 +7,12 @@ metadata:
   labels:
     app.kubernetes.io/name: kubevirt-migration-operator
     app.kubernetes.io/managed-by: kustomize
-  name: allow-metrics-traffic
+  name: migration-operator-allow-ingress-to-metrics
   namespace: system
 spec:
   podSelector:
     matchLabels:
-      control-plane: operator
-      app.kubernetes.io/name: kubevirt-migration-operator
+      prometheus.migrations.kubevirt.io: "true"
   policyTypes:
     - Ingress
   ingress:
@@ -21,7 +20,7 @@ spec:
     - from:
       - namespaceSelector:
           matchLabels:
-            metrics: enabled  # Only from namespaces with this label
+            metrics: enabled # Only from namespaces with this label
       ports:
         - port: 8443
           protocol: TCP

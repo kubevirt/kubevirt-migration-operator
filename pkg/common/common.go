@@ -37,4 +37,11 @@ const (
 	ComponentLabel = "migrations.kubevirt.io"
 	// ConfigMapName is the name of the configmap that owns controller resources
 	ConfigMapName = "kubevirt-migration-controller-config"
+
+	// AllowAccessClusterServicesNPLabel is a pod label to be set by virt-components to indicate that they require
+	// access to cluster services otherwise blocked by a strict network policy (NP).
+	// This label will be applied to the following Migration Operator pods by default:
+	// - kubevirt-migration-controller
+	// - kubevirt-migration-operator
+	AllowAccessClusterServicesNPLabel string = "np.kubevirt.io/allow-access-cluster-services"
 )
