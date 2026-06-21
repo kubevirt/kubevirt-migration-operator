@@ -149,7 +149,7 @@ func CreateOperatorDeployment(name, namespace, matchKey, matchValue, serviceAcco
 	sdk.MergeLabelsAndAnnotations(&metav1.ObjectMeta{
 		Labels: map[string]string{
 			common.PrometheusLabelKey:                common.PrometheusLabelValue,
-			common.AllowAccessClusterServicesNPLabel: common.AllowAccessClusterServicesNPLabel,
+			common.AllowAccessClusterServicesNPLabel: "true",
 		},
 	}, &deployment.Spec.Template.ObjectMeta)
 	if deployment.Spec.Template.Annotations == nil {
