@@ -39,6 +39,7 @@ import (
 
 // serviceAccountName created for the project
 const serviceAccountName = "kubevirt-migration-operator"
+const labelSelector = "control-plane=operator"
 
 // metricsServiceName is the name of the metrics service of the project
 const metricsServiceName = "kubevirt-migration-operator-metrics-service"
@@ -115,7 +116,7 @@ var _ = Describe("Manager", Ordered, func() {
 				*migrationOperatorNamespace))
 			verifyControllerUp := func(g Gomega) {
 				pods, err := kcs.CoreV1().Pods(*migrationOperatorNamespace).List(context.TODO(), metav1.ListOptions{
-					LabelSelector: "control-plane=operator",
+					LabelSelector: labelSelector,
 				})
 				Expect(err).NotTo(HaveOccurred(), "Failed to list operator pods")
 				Expect(pods.Items).To(HaveLen(1), "expected 1 operator pod running")

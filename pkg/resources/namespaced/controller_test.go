@@ -70,6 +70,15 @@ var _ = Describe("Controller Deployment", func() {
 			Expect(container.VolumeMounts[0].MountPath).To(Equal("/etc/ssl/certs/kubevirt-ca"))
 			Expect(container.VolumeMounts[0].ReadOnly).To(BeTrue())
 
+			// Verify security context
+			Expect(container.SecurityContext).NotTo(BeNil())
+			Expect(container.SecurityContext.ReadOnlyRootFilesystem).NotTo(BeNil())
+			Expect(container.SecurityContext.ReadOnlyRootFilesystem).To(HaveValue(BeTrue()))
+			Expect(container.SecurityContext.AllowPrivilegeEscalation).NotTo(BeNil())
+			Expect(container.SecurityContext.AllowPrivilegeEscalation).To(HaveValue(BeFalse()))
+			Expect(container.SecurityContext.RunAsNonRoot).NotTo(BeNil())
+			Expect(container.SecurityContext.RunAsNonRoot).To(HaveValue(BeTrue()))
+
 			// Verify resource requests
 			Expect(container.Resources.Requests).NotTo(BeNil())
 			Expect(container.Resources.Requests.Cpu().String()).To(Equal("100m"))
