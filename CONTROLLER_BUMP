@@ -1,0 +1,12 @@
+diff --git a/config/controller/controller.yaml b/config/controller/controller.yaml
+index dc64957..08215fd 100644
+--- a/config/controller/controller.yaml
++++ b/config/controller/controller.yaml
+@@ -44,6 +44,7 @@ spec:
+           capabilities:
+             drop:
+             - "ALL"
++          readOnlyRootFilesystem: true
+         livenessProbe:
+           httpGet:
+             path: /healthz
