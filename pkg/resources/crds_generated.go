@@ -3195,6 +3195,11 @@ spec:
                         - targetMigrationPVCs
                         type: object
                       type: array
+                    refreshEndTime:
+                      description: RefreshEndTime is the time the plan controller
+                        last completed a refresh reconcile.
+                      format: date-time
+                      type: string
                     suffix:
                       description: The suffix to automatically append to the source
                         PVC name. If the target name is not provided. This will replace
@@ -6215,6 +6220,11 @@ spec:
                   - targetMigrationPVCs
                   type: object
                 type: array
+              refreshEndTime:
+                description: RefreshEndTime is the time the plan controller last completed
+                  a refresh reconcile.
+                format: date-time
+                type: string
               suffix:
                 description: The suffix to automatically append to the source PVC
                   name. If the target name is not provided. This will replace the
