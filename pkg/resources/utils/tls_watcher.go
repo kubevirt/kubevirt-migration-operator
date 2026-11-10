@@ -20,6 +20,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"maps"
 	"sync"
 
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -58,9 +59,7 @@ var (
 	}
 	cipherNameToID = func() map[string]uint16 {
 		m := make(map[string]uint16, len(cipherSuites)+len(extraCipherSuites))
-		for k, v := range extraCipherSuites {
-			m[k] = v
-		}
+		maps.Copy(m, extraCipherSuites)
 		for _, cs := range cipherSuites {
 			m[cs.Name] = cs.ID
 		}
@@ -141,7 +140,7 @@ func cryptoConfigFromSpec(profile *v1alpha1.TLSSecurityProfile) *cryptoConfig {
 	cipherNames, minTypedTLSVersion := selectCipherSuitesAndMinTLSVersion(profile)
 	minTLSVersion, ok := tlsVersionMap[string(minTypedTLSVersion)]
 	if !ok {
-		log.Info("unknown TLS version %q, defaulting to TLS 1.2", minTypedTLSVersion)
+		log.Info("unknown TLS version, defaulting to TLS 1.2", "minTLSVersion", tlsProfileSpec.MinTLSVersion)
 		minTLSVersion = tls.VersionTLS12
 	}
 	return &cryptoConfig{
