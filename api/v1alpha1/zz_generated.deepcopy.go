@@ -196,7 +196,7 @@ func (in *TLSProfileSpec) DeepCopyInto(out *TLSProfileSpec) {
 	}
 	if in.Groups != nil {
 		in, out := &in.Groups, &out.Groups
-		*out = make([]TLSGroup, len(*in))
+		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
 }
