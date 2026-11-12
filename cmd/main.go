@@ -123,6 +123,7 @@ func main() {
 				cc := managedTLSWatcher.GetTLSConfig(ctx)
 				config.CipherSuites = cc.CipherSuites
 				config.MinVersion = cc.MinVersion
+				config.CurvePreferences = cc.CurvePreferences
 			}
 			return config, nil
 		}
