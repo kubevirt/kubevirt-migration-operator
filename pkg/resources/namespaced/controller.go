@@ -104,6 +104,19 @@ func getControllerNamespacedRules() []rbacv1.PolicyRule {
 				"patch",
 			},
 		},
+		{
+			APIGroups: []string{
+				"migrations.kubevirt.io",
+			},
+			Resources: []string{
+				"migrationcontrollers",
+			},
+			Verbs: []string{
+				"list",
+				"watch",
+				"get",
+			},
+		},
 	}
 }
 
