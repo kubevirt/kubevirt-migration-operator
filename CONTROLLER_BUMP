@@ -1,0 +1,28 @@
+diff --git a/api/migrationcontroller/v1alpha1/virtualmachinestoragemigrationplan_types.go b/api/migrationcontroller/v1alpha1/virtualmachinestoragemigrationplan_types.go
+index dc77eb6..ef18c67 100644
+--- a/api/migrationcontroller/v1alpha1/virtualmachinestoragemigrationplan_types.go
++++ b/api/migrationcontroller/v1alpha1/virtualmachinestoragemigrationplan_types.go
+@@ -133,6 +133,8 @@ type VirtualMachineStorageMigrationPlanStatus struct {
+ 
+ 	// The suffix to automatically append to the source PVC name. If the target name is not provided. This will replace the suffix "-new" or "-mig-xxxx" if present on the source PVC name.
+ 	Suffix *string `json:"suffix,omitempty"`
++	// RefreshEndTime is the time the plan controller last completed a refresh reconcile.
++	RefreshEndTime *metav1.MicroTime `json:"refreshEndTime,omitempty"`
+ 	// The conditions of the migration plan.
+ 	Conditions `json:",inline"`
+ }
+diff --git a/api/migrationcontroller/v1alpha1/zz_generated.deepcopy.go b/api/migrationcontroller/v1alpha1/zz_generated.deepcopy.go
+index 7a0c967..d9b493d 100644
+--- a/api/migrationcontroller/v1alpha1/zz_generated.deepcopy.go
++++ b/api/migrationcontroller/v1alpha1/zz_generated.deepcopy.go
+@@ -588,6 +588,10 @@ func (in *VirtualMachineStorageMigrationPlanStatus) DeepCopyInto(out *VirtualMac
+ 		*out = new(string)
+ 		**out = **in
+ 	}
++	if in.RefreshEndTime != nil {
++		in, out := &in.RefreshEndTime, &out.RefreshEndTime
++		*out = (*in).DeepCopy()
++	}
+ 	in.Conditions.DeepCopyInto(&out.Conditions)
+ }
+ 
